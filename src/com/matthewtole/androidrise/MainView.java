@@ -22,10 +22,10 @@ public class MainView extends View {
 	private HashMap<String, Bitmap> bitmaps;
 	private HashMap<String, Paint> paints;
 
-	private final static int X_MIN = -4;
-	private final static int X_MAX = 5;
-	private final static int Y_MIN = -4;
-	private final static int Y_MAX = 5;
+	private final static int X_MIN = -3;
+	private final static int X_MAX = 4;
+	private final static int Y_MIN = -7;
+	private final static int Y_MAX = 8;
 	private final static int DRAG_START_AMOUNT = 10;
 
 	private boolean dragging = false;
@@ -43,7 +43,7 @@ public class MainView extends View {
 	private int sidebarWidth = 0;
 	private int tileHeight = 0;
 	private int tileWidth = 0;
-	
+
 	public MainView(Context context) {
 		super(context);
 
@@ -51,7 +51,7 @@ public class MainView extends View {
 
 		this.bitmaps = new HashMap<String, Bitmap>();
 		this.addBitmap("tile", R.drawable.tile);
-		this.addBitmap("tileH", R.drawable.tile_h);
+		this.addBitmap("tileH", R.drawable.blue3);
 		this.addBitmap("background", R.drawable.retina_wood);
 
 		this.paints = new HashMap<String, Paint>();
