@@ -1,5 +1,8 @@
 package com.matthewtole.androidrise;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import android.content.Context;
@@ -9,6 +12,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -42,44 +47,119 @@ public class MainView extends View {
 	private int tileHeight = 0;
 	private int tileWidth = 0;
 
+	private char[][] layout;
+	private int[] layoutHome;
+
+	private boolean firstDraw = true;
+
 	public MainView(Context context) {
 		super(context);
 
 		this.game = new RiseGame();
-		this.game.setup();
+		this.loadLayout("cold_war");
+		this.game.setup(this.layout);
+		this.layoutHome = new int[2];
 
 		this.bitmaps = new HashMap<String, Bitmap>();
-		this.addBitmap("tile", R.drawable.tile);
+		this.loadBitmaps();
+
 		tileHeight = this.bitmaps.get("tile").getHeight() + 4;
 		tileWidth = this.bitmaps.get("tile").getWidth() - 10;
-
-		this.addBitmap("highlight", R.drawable.highlight);
-		this.addBitmap("background", R.drawable.background);
-		this.addBitmap("blue_worker", R.drawable.blue_worker);
-		this.addBitmap("red_worker", R.drawable.red_worker);
 
 		this.paints = new HashMap<String, Paint>();
 		this.makePaints();
 	}
 
+	private void loadBitmaps() {
+		this.addBitmap("tile", R.drawable.tile);
+		this.addBitmap("target", R.drawable.target);
+		this.addBitmap("highlight", R.drawable.highlight);
+		this.addBitmap("background", R.drawable.background);
+		this.addBitmap("blue_worker", R.drawable.blue_worker);
+		this.addBitmap("red_worker", R.drawable.red_worker);
+		this.addBitmap("blue_tower1", R.drawable.blue_tower1);
+		this.addBitmap("blue_tower2", R.drawable.blue_tower2);
+		this.addBitmap("blue_tower3", R.drawable.blue_tower3);
+		this.addBitmap("red_tower1", R.drawable.red_tower1);
+		this.addBitmap("red_tower2", R.drawable.red_tower2);
+		this.addBitmap("red_tower3", R.drawable.red_tower3);
+	}
+
+	private boolean loadLayout(String name) {
+		try {
+			InputStream stream = this.getContext().getAssets()
+					.open("layouts/" + name + ".txt");
+			String layoutString = readTxt(stream);
+			layoutString = layoutString.replace(",", "");
+			layoutString = layoutString.replace(".", "");
+
+			String[] layoutRows = layoutString.split("\n");
+			this.layout = new char[layoutRows[0].length()][layoutRows.length];
+			for (int r = 0; r < layoutRows.length; r += 1) {
+				for (int c = 0; c < layoutRows[r].length(); c += 1) {
+					this.layout[c][r] = layoutRows[r].charAt(c);
+				}
+			}
+			return true;
+
+		} catch (IOException e) {
+			Log.e("MainView", e.getMessage());
+		} catch (Exception ex) {
+			Log.e("MainView", ex.getMessage());
+		}
+		return false;
+	}
+
+	private String readTxt(InputStream stream) {
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+		int i;
+		try {
+			i = stream.read();
+			while (i != -1) {
+				byteArrayOutputStream.write(i);
+				i = stream.read();
+			}
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return byteArrayOutputStream.toString();
+	}
+
 	private void makePaints() {
 		this.paints.put("sidebarBackground", new Paint());
-		this.paints.get("sidebarBackground").setColor(Color.DKGRAY);
-		this.paints.get("sidebarBackground").setAntiAlias(true);
-		this.paints.get("sidebarBackground").setAlpha(200);
+		this.paints.get("sidebarBackground").setColor(
+				Color.parseColor("#333333"));
 		this.paints.get("sidebarBackground").setStyle(Style.FILL);
-		this.paints.put("sidebarLine", new Paint());
-		this.paints.get("sidebarLine").setColor(Color.LTGRAY);
-		this.paints.get("sidebarLine").setAntiAlias(true);
-		this.paints.get("sidebarLine").setAlpha(120);
-		this.paints.get("sidebarLine").setStrokeWidth(5.0f);
-		this.paints.get("sidebarLine").setStyle(Style.FILL);
+		this.paints.get("sidebarBackground").setAntiAlias(true);
 		
-		this.paints.put("playerIndicator_red", new Paint());
-		this.paints.get("playerIndicator_red").setColor(Color.parseColor("#8c1b0f"));
+		this.paints.put("finishBackground", new Paint());
+		this.paints.get("finishBackground").setColor(
+				Color.parseColor("#333333"));
+		this.paints.get("finishBackground").setStyle(Style.FILL);
+		this.paints.get("finishBackground").setAntiAlias(true);
+		this.paints.get("finishBackground").setAlpha(200);
 		
-		this.paints.put("playerIndicator_blue", new Paint());
-		this.paints.get("playerIndicator_blue").setColor(Color.parseColor("#262f8b"));
+		this.paints.put("text", new Paint());
+		this.paints.get("text").setColor(Color.WHITE);
+		this.paints.get("text").setTextSize(48);
+
+		Paint lineMaster = new Paint();
+		lineMaster.setColor(Color.WHITE);
+		lineMaster.setAntiAlias(true);
+		lineMaster.setStyle(Style.FILL);
+
+		this.paints.put("sidebarLineMiddle", new Paint(lineMaster));
+		this.paints.put("sidebarLineRed", new Paint(lineMaster));
+		this.paints.get("sidebarLineRed").setColor(Color.parseColor("#E72D18"));
+		this.paints.put("sidebarLineBlue", new Paint(lineMaster));
+		this.paints.get("sidebarLineBlue")
+				.setColor(Color.parseColor("#4B56CE"));
+		this.paints.put("sidebarLineDisabled", new Paint(lineMaster));
+		this.paints.get("sidebarLineDisabled").setColor(
+				Color.parseColor("#222222"));
 	}
 
 	private void addBitmap(String label, int resource) {
@@ -90,28 +170,102 @@ public class MainView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
+		canvasWidth = canvas.getWidth();
+		canvasHeight = canvas.getHeight();
+		sidebarWidth = 250;
+
+		if (firstDraw) {
+			this.jumpToCenter(canvas);
+			firstDraw = false;
+		}
+
 		canvas.drawColor(Color.BLACK);
 
 		this.drawBackground(canvas);
 		this.drawTiles(canvas);
 		this.drawPieces(canvas);
-		this.drawInterface(canvas);
+		
+		if (this.game.getState() == RiseGame.GAME_STATE_DONE) {
+			this.drawFinishScreen(canvas);
+		}
+		else {
+			this.drawInterface(canvas);
+		}
+	}
+
+	private void drawFinishScreen(Canvas canvas) {
+
+		RectF inRect = new RectF(10, 10, canvasWidth - 10,
+				canvasHeight - 10);
+		canvas.drawRoundRect(inRect, 20.0f, 20.0f,
+				this.paints.get("finishBackground"));
+
+	}
+
+	private void jumpToCenter(Canvas canvas) {
+		int[] piece1 = { 0, 0 };
+		int[] piece2 = { 0, 0 };
+
+		for (int tX = SIZE_MIN; tX < SIZE_MAX; tX += 1) {
+			for (int tY = SIZE_MIN; tY < SIZE_MAX; tY += 1) {
+				if (this.game.hasPiece(tX, tY)) {
+					if (this.game.pieceColour(tX, tY) == RiseGame.BLUE) {
+						piece1[0] = tX;
+						piece1[1] = tY;
+					} else {
+						piece2[0] = tX;
+						piece2[1] = tY;
+					}
+				}
+			}
+		}
+
+		int[] tmp = tilePosToScreenCoordinates(canvas,
+				(piece1[0] + piece2[0]) / 2, (piece1[1] + piece2[1]) / 2);
+		this.drawOffsetX = (-1 * tmp[0])
+				+ (this.sidebarWidth + (this.canvasWidth - sidebarWidth) / 2);
+		this.drawOffsetY = (-1 * tmp[1]) + this.canvasHeight / 2;
+		this.layoutHome[0] = this.drawOffsetX;
+		this.layoutHome[1] = this.drawOffsetY;
+
 	}
 
 	private void drawInterface(Canvas canvas) {
-		canvas.drawRect(0, 0, sidebarWidth, canvasHeight,
+
+		canvas.drawBitmap(this.bitmaps.get("target"), this.canvasWidth - 75,
+				10, null);
+
+		RectF inRect = new RectF(10, 10, sidebarWidth - 10, canvasHeight - 10);
+		canvas.drawRoundRect(inRect, 20.0f, 20.0f,
 				this.paints.get("sidebarBackground"));
-		canvas.drawLine(sidebarWidth + 2, 0, sidebarWidth + 2, canvasHeight,
-				this.paints.get("sidebarLine"));
 
-		canvas.drawRect(
-				20,
-				20,
-				sidebarWidth - 20,
-				60,
-				this.paints.get("playerIndicator_"
-						+ RiseGame.colourName(this.game.getCurrentPlayer())));
+		int middle = (canvasHeight - 20) / 2;
 
+		RectF redRect = new RectF(20, middle - 40, sidebarWidth - 20,
+				middle - 5);
+		canvas.drawRoundRect(redRect, 5.0f, 5.0f, this.paints.get(this.game
+				.getCurrentPlayer() == RiseGame.RED ? "sidebarLineRed"
+				: "sidebarLineDisabled"));
+
+		RectF redRect2 = new RectF(20, middle - 85, sidebarWidth - 20,
+				middle - 50);
+		canvas.drawRoundRect(redRect2, 5.0f, 5.0f, this.paints.get(this.game
+				.getCurrentPlayer() == RiseGame.RED
+				&& this.game.getMovesLeft() > 1 ? "sidebarLineRed"
+				: "sidebarLineDisabled"));
+
+		RectF BlueRect = new RectF(20, middle + 5, sidebarWidth - 20,
+				middle + 40);
+		canvas.drawRoundRect(BlueRect, 5.0f, 5.0f, this.paints.get(this.game
+				.getCurrentPlayer() == RiseGame.BLUE ? "sidebarLineBlue"
+				: "sidebarLineDisabled"));
+
+		RectF BlueRect2 = new RectF(20, middle + 50, sidebarWidth - 20,
+				middle + 85);
+		canvas.drawRoundRect(BlueRect2, 5.0f, 5.0f, this.paints.get(this.game
+				.getCurrentPlayer() == RiseGame.BLUE
+				&& this.game.getMovesLeft() > 1 ? "sidebarLineBlue"
+				: "sidebarLineDisabled"));
 	}
 
 	private void drawPieces(Canvas canvas) {
@@ -131,14 +285,32 @@ public class MainView extends View {
 				}
 				this.drawBitmap(canvas, tX, tY,
 						this.bitmaps.get(colour + "_" + type));
+
+				if (this.game.isSelectedWorker(tX, tY)) {
+					this.drawBitmap(canvas, tX, tY,
+							this.bitmaps.get("highlight"));
+				}
 			}
 		}
 	}
 
+	private int[] tilePosToScreenCoordinates(Canvas canvas, int x, int y) {
+		int centerX = drawOffsetX + (canvas.getWidth() / 2);
+		int centerY = drawOffsetY + (canvas.getHeight() / 2);
+
+		int tileW2 = tileWidth / 2;
+		int tileH4 = (tileHeight / 4) * 3;
+
+		int wX = (centerX + (tileWidth * x));
+		int wY = (centerY + (tileH4 * y));
+		if (Math.abs(y % 2) == 1) {
+			wX += tileW2;
+		}
+
+		return new int[] { wX, wY };
+	}
+
 	private void drawBitmap(Canvas canvas, int x, int y, Bitmap bitmap) {
-		canvasWidth = canvas.getWidth();
-		canvasHeight = canvas.getHeight();
-		sidebarWidth = canvasWidth / 4;
 
 		int centerX = drawOffsetX + (canvas.getWidth() / 2);
 		int centerY = drawOffsetY + (canvas.getHeight() / 2);
@@ -172,13 +344,14 @@ public class MainView extends View {
 				}
 			}
 		}
-
 	}
 
 	private void drawBackground(Canvas canvas) {
-		for (int x = 0; x < canvas.getWidth(); x += 256) {
-			for (int y = 0; y < canvas.getHeight(); y += 256) {
-				canvas.drawBitmap(this.bitmaps.get("background"), x, y, null);
+		for (int x = -256; x < canvas.getWidth() + 256; x += 256) {
+			for (int y = -256; y < canvas.getHeight() + 256; y += 256) {
+				canvas.drawBitmap(this.bitmaps.get("background"), x
+						+ (this.drawOffsetX % 256), y
+						+ (this.drawOffsetY % 256), null);
 			}
 		}
 	}
@@ -209,15 +382,21 @@ public class MainView extends View {
 			dragStartY = event.getY();
 			break;
 		case MotionEvent.ACTION_UP:
-			if (event.getX() <= sidebarWidth) {
-				dragging = false;
-				return sidebarClick(event.getX(), event.getY());
-			}
-			if (dragging) {
-				updateDrawOffset(event.getX(), event.getY());
-				dragging = false;
-			} else {
-				return this.gameClick(event.getX(), event.getY());
+			if (this.game.getState() != RiseGame.GAME_STATE_DONE) {
+				if (event.getX() <= sidebarWidth) {
+					dragging = false;
+					return sidebarClick(event.getX(), event.getY());
+				}
+				if (event.getX() > this.canvasWidth - 75 && event.getY() < 75) {
+					this.resetPosition();
+					return true;
+				}
+				if (dragging) {
+					updateDrawOffset(event.getX(), event.getY());
+					dragging = false;
+				} else {
+					return this.gameClick(event.getX(), event.getY());
+				}
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
@@ -225,18 +404,26 @@ public class MainView extends View {
 				dragging = false;
 				return false;
 			}
-			if (!dragging
-					&& (Math.abs(event.getX() - dragStartX) > DRAG_START_AMOUNT || Math
-							.abs(event.getY() - dragStartY) > DRAG_START_AMOUNT)) {
-				dragging = true;
-			}
-			if (dragging) {
-				updateDrawOffset(event.getX(), event.getY());
+			if (this.game.getState() != RiseGame.GAME_STATE_DONE) {
+				if (!dragging
+						&& (Math.abs(event.getX() - dragStartX) > DRAG_START_AMOUNT || Math
+								.abs(event.getY() - dragStartY) > DRAG_START_AMOUNT)) {
+					dragging = true;
+				}
+				if (dragging) {
+					updateDrawOffset(event.getX(), event.getY());
+				}
 			}
 			break;
 		}
 
 		return true;
+	}
+
+	private void resetPosition() {
+		this.drawOffsetX = this.layoutHome[0];
+		this.drawOffsetY = this.layoutHome[1];
+		this.invalidate();
 	}
 
 	private boolean gameClick(float x, float y) {
@@ -250,8 +437,10 @@ public class MainView extends View {
 	}
 
 	private boolean sidebarClick(float x, float y) {
-		// TODO Auto-generated method stub
-		return false;
+		this.game.setup(this.layout);
+		this.resetPosition();
+		this.invalidate();
+		return true;
 	}
 
 	private GridRef getGridRef(float x, float y) {
