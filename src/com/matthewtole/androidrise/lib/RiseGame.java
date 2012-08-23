@@ -200,7 +200,7 @@ public class RiseGame {
 
 		switch (this.turnState) {
 		case RiseGame.TURN_STATE_NOTHING:
-			return doNormalAction(x, y, player);
+			return doActionNothing(x, y, player);
 
 		case RiseGame.TURN_STATE_WORKER_SELECTED:
 			return doActionSelected(x, y, player);
@@ -216,23 +216,34 @@ public class RiseGame {
 		RiseTile theTile = this.getTile(x, y);
 
 		// SACRIFICE TO PLACE ANYWHERE
-		if (theTile.isTile()) {
+		if (theTile.isTile() && (WORKER_COUNT - this.availableWorkers[player] > 2)) {
 			this.sacrifices[0].setTile();
 			this.sacrifices[1].setTile();
 			this.availableWorkers[player] += 2;
 			theTile.setWorker(player);
-			this.availableWorkers[player] -= 1;
+			this.availableWorkers[player] -= 1;			
 			this.moveMade(player);
 			return true;
 		}
 		// SACRIFICE TO REMOVE OTHER PLAYER
-		if (theTile.isWorker(RiseGame.otherPlayer(player))) {
+		if (theTile.isWorker(RiseGame.otherPlayer(player)) && (WORKER_COUNT - this.availableWorkers[player] > 2)) {
 			this.sacrifices[0].setTile();
 			this.sacrifices[1].setTile();
 			this.availableWorkers[player] += 2;
 			theTile.setTile();
 			this.availableWorkers[RiseGame.otherPlayer(player)] += 1;
 			this.moveMade(player);
+			return true;
+		}
+		if (theTile == this.sacrifices[0] || theTile == this.sacrifices[1]) {
+			this.turnState = RiseGame.TURN_STATE_WORKER_SELECTED;
+			theTile.unselect();
+			if (theTile == this.sacrifices[0]) {
+				this.selectedTile = this.sacrifices[1];
+			}
+			else {
+				this.selectedTile = this.sacrifices[0];
+			}
 			return true;
 		}
 		return false;
@@ -248,8 +259,7 @@ public class RiseGame {
 			return true;
 		}
 		// GO INTO SACRIFICE
-		if (theTile.isWorker(player)
-				&& (WORKER_COUNT - this.availableWorkers[player] >= 2)) {
+		if (theTile.isWorker(player)) {
 			this.turnState = RiseGame.TURN_STATE_SACRIFICING;
 			theTile.select();
 			this.sacrifices[0] = this.selectedTile;
@@ -286,7 +296,7 @@ public class RiseGame {
 		return false;
 	}
 
-	private boolean doNormalAction(int x, int y, int player) {
+	private boolean doActionNothing(int x, int y, int player) {
 		RiseTile theTile = this.getTile(x, y);
 
 		// ADD TILE
