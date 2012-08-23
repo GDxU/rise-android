@@ -51,8 +51,11 @@ public class MainView extends View {
 
 		this.bitmaps = new HashMap<String, Bitmap>();
 		this.addBitmap("tile", R.drawable.tile);
-		this.addBitmap("tileH", R.drawable.blue3);
-		this.addBitmap("background", R.drawable.retina_wood);
+		tileHeight = this.bitmaps.get("tile").getHeight() + 4;
+		tileWidth = this.bitmaps.get("tile").getWidth() - 10;
+
+		this.addBitmap("highlight", R.drawable.highlight);
+		this.addBitmap("background", R.drawable.background);
 
 		this.paints = new HashMap<String, Paint>();
 		this.makePaints();
@@ -151,30 +154,25 @@ public class MainView extends View {
 
 		canvasWidth = canvas.getWidth();
 		canvasHeight = canvas.getHeight();
-		sidebarWidth = 300;
-		tileHeight = this.bitmaps.get("tile").getHeight();
-		tileWidth = this.bitmaps.get("tile").getWidth();
+		sidebarWidth = canvasWidth / 4;
 
 		int centerX = drawOffsetX + (canvas.getWidth() / 2);
 		int centerY = drawOffsetY + (canvas.getHeight() / 2);
 
-		int tileW = this.bitmaps.get("tile").getWidth();
-		int tileH = tileHeight;
-		int tileW2 = tileW / 2;
-		int tileW4 = (tileW / 4) * 3;
-		int tileH2 = tileH / 2;
+		int tileW2 = tileWidth / 2;
+		int tileH4 = (tileHeight / 4) * 3;
+		int tileH2 = tileHeight / 2;
 
-		int wX = (centerX + (tileW4 * x));
-		int wY = (centerY + (tileH * y));
-		if (Math.abs(x % 2) == 1) {
-			wY += tileH2;
+		int wX = (centerX + (tileWidth * x));
+		int wY = (centerY + (tileH4 * y));
+		if (Math.abs(y % 2) == 1) {
+			wX += tileW2;
 		}
 
+		canvas.drawBitmap(this.bitmaps.get("tile"), wX - tileW2, wY - tileH2,
+				null);
 		if (tileHighlightedX == x && tileHighlightedY == y) {
-			canvas.drawBitmap(this.bitmaps.get("tileH"), wX - tileW2, wY
-					- tileH2, null);
-		} else {
-			canvas.drawBitmap(this.bitmaps.get("tile"), wX - tileW2, wY
+			canvas.drawBitmap(this.bitmaps.get("highlight"), wX - tileW2, wY
 					- tileH2, null);
 		}
 	}
@@ -289,13 +287,12 @@ public class MainView extends View {
 			x += tileWidth / 2;
 		}
 
-		int gX = (int) (x / ((tileWidth / 4) * 3));
-
-		if (Math.abs(gX % 2) == 1) {
-			y -= tileHeight / 2;
+		int gY = (int) (y / ((tileHeight / 4) * 3));
+		if (Math.abs(gY % 2) == 1) {
+			x -= tileWidth / 2;
 		}
+		int gX = (int) (x / tileWidth);
 
-		int gY = (int) (y / tileHeight);
 		return new GridRef(gX, gY);
 	}
 
