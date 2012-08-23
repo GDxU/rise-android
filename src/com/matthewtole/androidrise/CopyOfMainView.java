@@ -15,7 +15,7 @@ import android.view.View;
 import com.matthewtole.androidrise.lib.GridRef;
 import com.matthewtole.androidrise.lib.RiseGame;
 
-public class MainView extends View {
+public class CopyOfMainView extends View {
 
 	private RiseGame game;
 
@@ -33,33 +33,39 @@ public class MainView extends View {
 	private int drawOffsetX = 0;
 	private int drawOffsetY = 0;
 
-	private int tileHighlightedX = 0;
-	private int tileHighlightedY = 0;
-
 	private int canvasWidth = 0;
 	private int canvasHeight = 0;
 	private int sidebarWidth = 0;
 	private int tileHeight = 0;
 	private int tileWidth = 0;
 
-	public MainView(Context context) {
+	public CopyOfMainView(Context context) {
 		super(context);
 
 		this.game = new RiseGame();
 		this.game.setup();
 
 		this.bitmaps = new HashMap<String, Bitmap>();
-		this.addBitmap("tile", R.drawable.tile);
+		this.loadBitmaps();
 		tileHeight = this.bitmaps.get("tile").getHeight() + 4;
 		tileWidth = this.bitmaps.get("tile").getWidth() - 10;
 
+		this.paints = new HashMap<String, Paint>();
+		this.makePaints();
+	}
+
+	private void loadBitmaps() {
+		this.addBitmap("tile", R.drawable.tile);
 		this.addBitmap("highlight", R.drawable.highlight);
 		this.addBitmap("background", R.drawable.background);
 		this.addBitmap("blue_worker", R.drawable.blue_worker);
 		this.addBitmap("red_worker", R.drawable.red_worker);
-
-		this.paints = new HashMap<String, Paint>();
-		this.makePaints();
+		this.addBitmap("blue_tower_1", R.drawable.blue_tower1);
+		this.addBitmap("blue_tower_2", R.drawable.blue_tower2);
+		this.addBitmap("blue_tower_3", R.drawable.blue_tower3);
+		this.addBitmap("red_tower_1", R.drawable.red_tower1);
+		this.addBitmap("red_tower_2", R.drawable.red_tower2);
+		this.addBitmap("red_tower_3", R.drawable.red_tower3);
 	}
 
 	private void makePaints() {
@@ -74,12 +80,6 @@ public class MainView extends View {
 		this.paints.get("sidebarLine").setAlpha(120);
 		this.paints.get("sidebarLine").setStrokeWidth(5.0f);
 		this.paints.get("sidebarLine").setStyle(Style.FILL);
-		
-		this.paints.put("playerIndicator_red", new Paint());
-		this.paints.get("playerIndicator_red").setColor(Color.parseColor("#8c1b0f"));
-		
-		this.paints.put("playerIndicator_blue", new Paint());
-		this.paints.get("playerIndicator_blue").setColor(Color.parseColor("#262f8b"));
 	}
 
 	private void addBitmap(String label, int resource) {
@@ -101,16 +101,8 @@ public class MainView extends View {
 	private void drawInterface(Canvas canvas) {
 		canvas.drawRect(0, 0, sidebarWidth, canvasHeight,
 				this.paints.get("sidebarBackground"));
-		canvas.drawLine(sidebarWidth + 2, 0, sidebarWidth + 2, canvasHeight,
+		canvas.drawLine(sidebarWidth, 0, sidebarWidth, canvasHeight,
 				this.paints.get("sidebarLine"));
-
-		canvas.drawRect(
-				20,
-				20,
-				sidebarWidth - 20,
-				60,
-				this.paints.get("playerIndicator_"
-						+ RiseGame.colourName(this.game.getCurrentPlayer())));
 
 	}
 
@@ -135,7 +127,8 @@ public class MainView extends View {
 		}
 	}
 
-	private void drawBitmap(Canvas canvas, int x, int y, Bitmap bitmap) {
+	private void drawBitmap(Canvas canvas, int tX, int tY, Bitmap bitmap) {
+
 		canvasWidth = canvas.getWidth();
 		canvasHeight = canvas.getHeight();
 		sidebarWidth = canvasWidth / 4;
@@ -147,28 +140,20 @@ public class MainView extends View {
 		int tileH4 = (tileHeight / 4) * 3;
 		int tileH2 = tileHeight / 2;
 
-		int wX = (centerX + (tileWidth * x));
-		int wY = (centerY + (tileH4 * y));
+		int x = (centerX + (tileWidth * tX));
+		int y = (centerY + (tileH4 * tY));
 		if (Math.abs(y % 2) == 1) {
-			wX += tileW2;
+			x += tileW2;
 		}
 
-		canvas.drawBitmap(bitmap, wX - tileW2, wY - tileH2, null);
-	}
-
-	private void drawTile(Canvas canvas, int x, int y, boolean highlight) {
-		if (this.game.hasTile(x, y)) {
-			this.drawBitmap(canvas, x, y, this.bitmaps.get("tile"));
-		}
+		canvas.drawBitmap(bitmap, x - tileW2, y - tileH2, null);
 	}
 
 	private void drawTiles(Canvas canvas) {
 		for (int tX = SIZE_MIN; tX < SIZE_MAX; tX += 1) {
 			for (int tY = SIZE_MIN; tY < SIZE_MAX; tY += 1) {
-				if (tileHighlightedX == tX && tileHighlightedY == tY) {
-					drawTile(canvas, tX, tY, true);
-				} else {
-					drawTile(canvas, tX, tY, false);
+				if (this.game.hasTile(tX, tY)) {
+					drawBitmap(canvas, tX, tY, this.bitmaps.get("tile"));
 				}
 			}
 		}
@@ -241,38 +226,18 @@ public class MainView extends View {
 
 	private boolean gameClick(float x, float y) {
 		GridRef gr = getGridRef(x, y);
-		/*
-		 * tileHighlightedX = gr.x; tileHighlightedY = gr.y;
-		 */
 		this.game.doAction(gr.x, gr.y, this.game.getCurrentPlayer());
 		this.invalidate();
 		return true;
 	}
 
 	private boolean sidebarClick(float x, float y) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	private GridRef getGridRef(float x, float y) {
-
-		x -= drawOffsetX;
-		y -= drawOffsetY;
-
-		x = x - (canvasWidth / 2);
-		y = y - (canvasHeight / 2);
-
-		if (y < 0) {
-			y -= tileHeight / 2;
-		} else {
-			y += tileHeight / 2;
-		}
-
-		if (x < 0) {
-			x -= tileWidth / 2;
-		} else if (x > 0) {
-			x += tileWidth / 2;
-		}
+		x = x - drawOffsetX - (canvasWidth / 2) - ((y < 0 ? -1 : 1) * (tileHeight / 2));
+		y = y - drawOffsetY - (canvasHeight / 2) - ((x < 0 ? -1 : 1) * (tileWidth / 2));
 
 		int gY = (int) (y / ((tileHeight / 4) * 3));
 		if (Math.abs(gY % 2) == 1) {
