@@ -145,13 +145,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						Worker w = new Worker(this.spriteManager,
 								GamePlayer.RED);
 						w.setLocation(loc);
+						while (listLockout) {
+						}
+						listLockout = true;
 						this.workers.add(w);
+						listLockout = false;
 						redPos = new ScreenLocation(loc);
 					} else if (c == 'B') {
 						Worker w = new Worker(this.spriteManager,
 								GamePlayer.BLUE);
 						w.setLocation(loc);
+						while (listLockout) {
+						}
+						listLockout = true;
 						this.workers.add(w);
+						listLockout = false;
 						bluePos = new ScreenLocation(loc);
 					}
 				}
@@ -339,7 +347,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				if (event.getPointerCount() == 1) {
 					this.onGameClick(event.getX(), event.getY());
 				} else {
-					Log.d(TAG, Utils.coordString(event.getX(), event.getY()));
+					//Log.d(TAG, Utils.coordString(event.getX(), event.getY()));
 				}
 			}
 			break;
@@ -394,13 +402,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						update.extraInt == RiseGame.BLUE ? GamePlayer.BLUE
 								: GamePlayer.RED);
 				newWorker.setLocation(update.location);
+				while (listLockout) {
+				}
+				listLockout = true;
 				this.workers.add(newWorker);
+				listLockout = false;
 			}
 				break;
 			case GameUpdate.WORKER_JUMP:
 				w.setLocation(update.locationSecondary, false);
 				w.setSelected(false);
+				while (listLockout) {
+				}
+				listLockout = true;
 				this.workers.remove(w3);
+				listLockout = false;
 				break;
 			case GameUpdate.TILE_ADDED: {
 				Tile t = new Tile(spriteManager);
@@ -415,7 +431,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				break;
 			case GameUpdate.TOWER_DEMOLISHED: {
 				Tower t = findTowerByLocation(update.location);
+				while (listLockout) {
+				}
+				listLockout = true;
 				this.towers.remove(t);
+				listLockout = false;
 			}
 				break;
 			case GameUpdate.SACRIFICE_ADD: {
@@ -425,16 +445,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 							(w2.getPlayer() == GamePlayer.BLUE) ? GamePlayer.BLUE
 									: GamePlayer.RED);
 					newWorker.setLocation(update.location);
+					while (listLockout) {
+					}
+					listLockout = true;
 					this.workers.add(newWorker);
 					this.workers.remove(w2);
 					this.workers.remove(w3);
+					listLockout = false;
 				}
 			}
 				break;
 			case GameUpdate.SACRIFICE_REMOVE: {
+				while (listLockout) {
+				}
+				listLockout = true;
 				this.workers.remove(w);
 				this.workers.remove(w2);
 				this.workers.remove(w3);
+				listLockout = false;
 			}
 				break;
 			}
@@ -452,11 +480,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			return null;
 		}
 
+		while (listLockout) {
+		}
+		listLockout = true;
 		for (Tower t : this.towers) {
 			if (t.getLocation().equals(location)) {
+				listLockout = false;
 				return t;
 			}
 		}
+		listLockout = true;
 		return null;
 	}
 
@@ -465,11 +498,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			return null;
 		}
 
+		while (listLockout) {
+		}
+		listLockout = true;
 		for (Worker w : this.workers) {
 			if (w.getLocation().equals(location)) {
+				listLockout = false;
 				return w;
 			}
 		}
+		listLockout = false;
 		return null;
 	}
 

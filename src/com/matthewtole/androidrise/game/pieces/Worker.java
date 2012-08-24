@@ -14,7 +14,6 @@ public class Worker extends CompositePiece {
 		this.addPiece(new WorkerDisc(sprites, player));
 		this.addPiece(new AnimatedPiece(sprites, "dots", 6));
 		this.hidePiece(1);
-
 	}
 
 	public void setSelected(boolean selected) {
@@ -24,7 +23,7 @@ public class Worker extends CompositePiece {
 			this.hidePiece(1);
 		}
 	}
-	
+
 	public GamePlayer getPlayer() {
 		return this.player;
 	}
