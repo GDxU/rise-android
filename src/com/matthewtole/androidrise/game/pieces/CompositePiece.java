@@ -56,7 +56,7 @@ public class CompositePiece extends Piece {
 	}
 
 	@Override
-	protected void setLocation(int x, int y) {
+	protected void setLocation(float x, float y) {
 		super.setLocation(x, y);
 		for (Piece p : this.pieces) {
 			p.setLocation(x, y);

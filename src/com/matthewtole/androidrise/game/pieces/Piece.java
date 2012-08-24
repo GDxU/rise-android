@@ -59,8 +59,8 @@ public class Piece {
 
 	protected void move() {
 
-		int x = this.location.getScreenX();
-		int y = this.location.getScreenY();
+		float x = this.location.getScreenX();
+		float y = this.location.getScreenY();
 
 		if (x < this.target.getScreenX()) {
 			if (Math.abs(x - this.target.getScreenX()) < this.MOVE_SPEED) {
@@ -97,7 +97,7 @@ public class Piece {
 		this.setLocation(x, y);
 	}
 
-	protected void setLocation(int x, int y) {
+	protected void setLocation(float x, float y) {
 		this.location = new ScreenLocation(x, y);
 	}
 

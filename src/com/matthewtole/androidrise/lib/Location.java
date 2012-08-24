@@ -1,9 +1,9 @@
 package com.matthewtole.androidrise.lib;
 
 public interface Location {
-	public int getScreenX();
+	public float getScreenX();
 
-	public int getScreenY();
+	public float getScreenY();
 	
 	public int getGridX();
 	

@@ -24,7 +24,7 @@ public class GridLocation implements Location {
 		return (this.x == other.x && this.y == other.y);
 	}
 
-	public int getScreenX() {
+	public float getScreenX() {
 		return toScreen().getScreenX();
 	}
 
@@ -41,7 +41,7 @@ public class GridLocation implements Location {
 		return new ScreenLocation(wX, wY);
 	}
 
-	public int getScreenY() {
+	public float getScreenY() {
 		return toScreen().getScreenY();
 	}
 

@@ -4,10 +4,10 @@ import com.matthewtole.androidrise.game.Common;
 
 public class ScreenLocation implements Location {
 
-	private int x = 0;
-	private int y = 0;
+	private float x = 0;
+	private float y = 0;
 
-	public ScreenLocation(int x, int y) {
+	public ScreenLocation(float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -26,11 +26,11 @@ public class ScreenLocation implements Location {
 		this.y = loc.getScreenY();
 	}
 
-	public int getScreenX() {
+	public float getScreenX() {
 		return this.x;
 	}
 
-	public int getScreenY() {
+	public float getScreenY() {
 		return this.y;
 	}
 
@@ -44,17 +44,17 @@ public class ScreenLocation implements Location {
 
 	public GridLocation toGridLocation() {
 
-		int x = this.getScreenX();
-		int y = this.getScreenY();
+		float x = this.getScreenX();
+		float y = this.getScreenY();
 		
 		//x -= Common.TILE_WIDTH_HALF;
 		//y -= Common.TILE_HEIGHT_HALF;
 		
-		int gY = y / Common.TILE_HEIGHT_THREEQUARTERS;
+		int gY = (int)y / Common.TILE_HEIGHT_THREEQUARTERS;
 		if (Math.abs(gY % 2) == 1) {
 			x -= Common.TILE_WIDTH_HALF;
 		}
-		int gX = x / Common.TILE_WIDTH;
+		int gX = (int)x / Common.TILE_WIDTH;
 		
 		return new GridLocation(gX, gY);
 	}
