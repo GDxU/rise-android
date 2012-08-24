@@ -2,7 +2,7 @@ package com.matthewtole.androidrise.game.pieces;
 
 import com.matthewtole.androidrise.game.SpriteManager;
 
-public class AnimatedPiece extends StaticPiece {
+public class AnimatedPiece extends BitmapPiece {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = AnimatedPiece.class.getSimpleName();
@@ -11,11 +11,11 @@ public class AnimatedPiece extends StaticPiece {
 	private int frame;
 
 	public AnimatedPiece(SpriteManager sprites, String folder, int count) {
-		super(sprites, "");
+		super(sprites);
 		this.folder = folder;
 		this.count = count;
 		this.frame = 0;
-		this.bitmap = makeBitmap();
+		this.setBitmap(this.makeBitmap());
 	}
 
 	private String makeBitmap() {	
@@ -32,7 +32,7 @@ public class AnimatedPiece extends StaticPiece {
 		if (this.frame >= this.count) {
 			this.frame = 0;
 		}
-		this.bitmap = makeBitmap();
+		this.setBitmap(this.makeBitmap());
 	}
 	
 	

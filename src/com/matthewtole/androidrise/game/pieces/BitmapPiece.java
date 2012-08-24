@@ -6,10 +6,19 @@ import android.graphics.Canvas;
 
 public class BitmapPiece extends Piece {
 	
-	protected String bitmap = "";
-
+	private String bitmap = "";
+	
 	public BitmapPiece(SpriteManager sprites) {
 		super(sprites);
+	}
+
+	public BitmapPiece(SpriteManager sprites, String bitmap) {
+		super(sprites);
+		this.setBitmap(bitmap);
+	}
+
+	protected void setBitmap(String bitmap) {
+		this.bitmap = bitmap;		
 	}
 
 	@Override

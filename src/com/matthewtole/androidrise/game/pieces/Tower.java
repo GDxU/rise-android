@@ -11,12 +11,12 @@ public class Tower extends BitmapPiece {
 
 	public Tower(SpriteManager sprites, GamePlayer player) {
 		super(sprites);
-		this.bitmap = Utils.playerString(player) + "_tower" + String.valueOf(this.level);
+		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));
 		this.player = player;
 	}
 
 	public void removeLevel() {
 		level -= 1;
-		this.bitmap = Utils.playerString(this.player) + "_tower" + String.valueOf(this.level);
+		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));
 	}
 }

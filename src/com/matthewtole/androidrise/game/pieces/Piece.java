@@ -1,7 +1,6 @@
 package com.matthewtole.androidrise.game.pieces;
 
 import android.graphics.Canvas;
-import android.util.Log;
 
 import com.matthewtole.androidrise.game.Common;
 import com.matthewtole.androidrise.game.SpriteManager;
