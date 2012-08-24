@@ -1,16 +1,15 @@
 package com.matthewtole.androidrise.game.pieces;
 
 import android.graphics.Canvas;
+import android.util.Log;
 
+import com.matthewtole.androidrise.game.Common;
 import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.lib.GridLocation;
 import com.matthewtole.androidrise.lib.ScreenLocation;
+import com.matthewtole.androidrise.lib.SimpleQueue;
 
 public class Piece {
-
-	protected enum PieceState {
-		DEFAULT, MOVING, ANIMATING
-	}
 
 	@SuppressWarnings("unused")
 	private static final String TAG = Piece.class.getSimpleName();
@@ -21,12 +20,14 @@ public class Piece {
 
 	protected boolean isMoving = false;
 	private ScreenLocation target;
-	private int MOVE_SPEED = 5;
+	private int MOVE_DURATION = 250;
+	private SimpleQueue<ScreenLocation> movePoints;
 
 	protected boolean hidden = false;
 
 	public Piece(SpriteManager sprites) {
 		this.sprites = sprites;
+		this.movePoints = new SimpleQueue<ScreenLocation>();
 	}
 
 	public void setLocation(GridLocation loc) {
@@ -34,14 +35,31 @@ public class Piece {
 		this.setLocation(loc, true);
 	}
 
-	public void setLocation(GridLocation loc, boolean instant) {
-		this.gridLocation = loc;
+	public void setLocation(GridLocation loc, boolean instant) {		
 		if (instant) {
 			this.location = new ScreenLocation(loc);
 		} else {
 			this.target = new ScreenLocation(loc);
+			this.calculateMovePoints(loc);
 			this.isMoving = true;
 		}
+		this.gridLocation = loc;
+	}
+
+	private void calculateMovePoints(GridLocation loc) {
+		float targetX = target.getScreenX();
+		float targetY = target.getScreenY();
+		float currentX = this.getLocation().getScreenX();
+		float currentY = this.getLocation().getScreenY();
+
+		float frameCount = this.MOVE_DURATION / Common.FPS - 2;
+		for (float f = 1; f < frameCount; f += 1) {
+			float thisX = currentX + (((targetX - currentX) / frameCount) * f);
+			float thisY = currentY + (((targetY - currentY) / frameCount) * f);
+			ScreenLocation s = new ScreenLocation(thisX, thisY);
+			this.movePoints.put(s);
+		}
+
 	}
 
 	public GridLocation getLocation() {
@@ -58,43 +76,13 @@ public class Piece {
 	}
 
 	protected void move() {
-
-		float x = this.location.getScreenX();
-		float y = this.location.getScreenY();
-
-		if (x < this.target.getScreenX()) {
-			if (Math.abs(x - this.target.getScreenX()) < this.MOVE_SPEED) {
-				x = this.target.getScreenX();
-			} else {
-				x += this.MOVE_SPEED;
-			}
-		} else if (x > this.target.getScreenX()) {
-			if (Math.abs(x - this.target.getScreenX()) < this.MOVE_SPEED) {
-				x = this.target.getScreenX();
-			} else {
-				x -= this.MOVE_SPEED;
-			}
-		}
-
-		if (y < this.target.getScreenY()) {
-			if (Math.abs(y - this.target.getScreenY()) < this.MOVE_SPEED) {
-				y = this.target.getScreenY();
-			} else {
-				y += this.MOVE_SPEED;
-			}
-		} else if (y > this.target.getScreenY()) {
-			if (Math.abs(y - this.target.getScreenY()) < this.MOVE_SPEED) {
-				y = this.target.getScreenY();
-			} else {
-				y -= this.MOVE_SPEED;
-			}
-		}
-
-		if (x == this.target.getScreenX() && y == this.target.getScreenY()) {
+		if (this.movePoints.isEmpty()) {
 			this.isMoving = false;
+			this.setLocation(this.target.getScreenX(), this.target.getScreenY());
+			return;
 		}
-
-		this.setLocation(x, y);
+		ScreenLocation loc = this.movePoints.get();
+		this.setLocation(loc.getScreenX(), loc.getScreenY());
 	}
 
 	protected void setLocation(float x, float y) {
