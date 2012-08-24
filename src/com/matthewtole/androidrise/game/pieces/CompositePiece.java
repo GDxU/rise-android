@@ -2,11 +2,10 @@ package com.matthewtole.androidrise.game.pieces;
 
 import java.util.ArrayList;
 
+import android.graphics.Canvas;
+
 import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.lib.GridLocation;
-
-import android.graphics.Canvas;
-import android.util.Log;
 
 public class CompositePiece extends Piece {
 

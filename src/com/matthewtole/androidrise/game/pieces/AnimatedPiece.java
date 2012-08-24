@@ -4,6 +4,7 @@ import com.matthewtole.androidrise.game.SpriteManager;
 
 public class AnimatedPiece extends StaticPiece {
 
+	@SuppressWarnings("unused")
 	private static final String TAG = AnimatedPiece.class.getSimpleName();
 	private String folder;
 	private int count;

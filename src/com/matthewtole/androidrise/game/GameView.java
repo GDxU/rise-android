@@ -170,9 +170,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.game.setup(this.layout);
 
 		this.buildInitialLayout();
-		
-		this.thread = new GameThread(this.getHolder(), this);		
-		if (this.thread == null || ! thread.isRunning()) {
+
+		this.thread = new GameThread(this.getHolder(), this);
+		if (this.thread == null || !thread.isRunning()) {
 			thread.setRunning(true);
 			thread.start();
 		}
@@ -201,7 +201,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			canvas.restore();
 			this.drawInterface(canvas);
 		} catch (Exception ex) {
-			Log.e(TAG, ex.getMessage() == null ? ex.toString() : ex.getMessage());
+			Log.e(TAG,
+					ex.getMessage() == null ? ex.toString() : ex.getMessage());
 			thread.setRunning(false);
 		}
 	}
@@ -364,13 +365,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			}
 				break;
 			case GameUpdate.SACRIFICE_ADD: {
-				Worker newWorker = new Worker(spriteManager,
-						(w.getPlayer() == GamePlayer.RED) ? GamePlayer.BLUE
-								: GamePlayer.RED);
-				newWorker.setLocation(update.location);
-				this.workers.add(newWorker);
-				this.workers.remove(w2);
-				this.workers.remove(w3);
+				if (w == null) {
+					Worker newWorker = new Worker(spriteManager,
+							(w2.getPlayer() == GamePlayer.BLUE) ? GamePlayer.BLUE
+									: GamePlayer.RED);
+					newWorker.setLocation(update.location);
+					this.workers.add(newWorker);
+					this.workers.remove(w2);
+					this.workers.remove(w3);
+				}
 			}
 				break;
 			case GameUpdate.SACRIFICE_REMOVE: {

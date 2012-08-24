@@ -1,13 +1,10 @@
 package com.matthewtole.androidrise.game.pieces;
 
-import android.graphics.Paint;
-
 import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.game.enums.GamePlayer;
 
 public class Worker extends CompositePiece {
 
-	private Paint highlighter;
 	private GamePlayer player;
 
 	public Worker(SpriteManager sprites, GamePlayer player) {
@@ -27,7 +24,7 @@ public class Worker extends CompositePiece {
 			this.hidePiece(1);
 		}
 	}
-
+	
 	public GamePlayer getPlayer() {
 		return this.player;
 	}
