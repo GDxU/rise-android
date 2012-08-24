@@ -1,4 +1,4 @@
-package com.matthewtole.androidrise;
+package com.matthewtole.androidrise.crap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.matthewtole.androidrise.crap.GridRef;
 import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.lib.RiseGame;
 

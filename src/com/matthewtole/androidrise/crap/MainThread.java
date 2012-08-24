@@ -1,4 +1,4 @@
-package com.matthewtole.androidrise;
+package com.matthewtole.androidrise.crap;
 
 public class MainThread extends Thread {
 
