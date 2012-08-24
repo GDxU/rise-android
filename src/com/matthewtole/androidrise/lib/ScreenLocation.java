@@ -12,7 +12,7 @@ public class ScreenLocation implements Location {
 		this.y = y;
 	}
 
-	public ScreenLocation(GridLocation loc) {
+	public ScreenLocation(Location loc) {
 		this.x = loc.getScreenX();
 		this.y = loc.getScreenY();
 	}
@@ -33,28 +33,19 @@ public class ScreenLocation implements Location {
 		return toGridLocation().getGridY();
 	}
 
-	protected GridLocation toGridLocation() {
+	public GridLocation toGridLocation() {
 
 		int x = this.getScreenX();
 		int y = this.getScreenY();
-
-		if (y < 0) {
-			y -= Common.TILE_HEIGHT_HALF;
-		} else {
-			y += Common.TILE_HEIGHT_HALF;
-		}
-
-		if (x < 0) {
-			x -= Common.TILE_WIDTH_HALF;
-		} else if (x > 0) {
-			x += Common.TILE_WIDTH_HALF;
-		}
-
-		int gY = (int) (y / Common.TILE_HEIGHT_THREEQUARTERS);
+		
+		//x -= Common.TILE_WIDTH_HALF;
+		//y -= Common.TILE_HEIGHT_HALF;
+		
+		int gY = y / Common.TILE_HEIGHT_THREEQUARTERS;
 		if (Math.abs(gY % 2) == 1) {
 			x -= Common.TILE_WIDTH_HALF;
 		}
-		int gX = (int) (x / Common.TILE_WIDTH);
+		int gX = x / Common.TILE_WIDTH;
 		
 		return new GridLocation(gX, gY);
 	}

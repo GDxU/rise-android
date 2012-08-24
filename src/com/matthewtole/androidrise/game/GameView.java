@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -13,6 +14,8 @@ import android.view.SurfaceView;
 import com.matthewtole.androidrise.game.enums.GamePlayer;
 import com.matthewtole.androidrise.lib.GridLocation;
 import com.matthewtole.androidrise.lib.RiseGame;
+import com.matthewtole.androidrise.lib.ScreenLocation;
+import com.matthewtole.androidrise.lib.Utils;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -34,12 +37,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	private ArrayList<Tile> tiles;
 	private ArrayList<Tower> towers;
 	private ArrayList<Worker> workers;
+	private boolean listLockout = false;
 
 	private float dragStartX = 0;
 	private float dragStartY = 0;
 	private boolean isDragging = false;
-	
-	private int sleepCounter = 120;
+
+	private int sleepCounter = 50;
+
+	private Paint touchPaint;
+
+	private char[][] layout;
+
+	private ScreenLocation centerLocation;
 
 	public GameView(Context context) {
 		super(context);
@@ -52,80 +62,141 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.tiles = new ArrayList<Tile>();
 		this.towers = new ArrayList<Tower>();
 		this.workers = new ArrayList<Worker>();
-		
-		Tile tmp = new Tile(this.spriteManager);
-		tmp.setLocation(new GridLocation(0, 0), true);
-		this.tiles.add(tmp);
 
-		tmp = new Tile(this.spriteManager);
-		tmp.setLocation(new GridLocation(1, 0), true);
-		this.tiles.add(tmp);
+		this.loadLayout("the_pit");
 
-		tmp = new Tile(this.spriteManager);
-		tmp.setLocation(new GridLocation(0, 1), true);
-		this.tiles.add(tmp);
-
-		tmp = new Tile(this.spriteManager);
-		tmp.setLocation(new GridLocation(0, 2), true);
-		this.tiles.add(tmp);
-
-		Worker w = new Worker(this.spriteManager, GamePlayer.RED);
-		w.setLocation(new GridLocation(1, 0));
-		w.setLocation(new GridLocation(0, 2), false);
-		this.workers.add(w);
-
-		Tower to = new Tower(this.spriteManager, GamePlayer.RED);
-		to.setLocation(new GridLocation(0, 0), true);
-		this.towers.add(to);
+		this.touchPaint = new Paint();
+		this.touchPaint.setColor(Color.BLACK);
 
 		this.setFocusable(true);
+	}
+
+	private void buildInitialLayout() {
+
+		int layoutOffsetX = 30 - this.layout.length / 2;
+		int layoutOffsetY = 30 - this.layout[1].length / 2;
+		if (layoutOffsetX % 2 == 1) {
+			layoutOffsetX -= 1;
+		}
+		if (layoutOffsetY % 2 == 1) {
+			layoutOffsetY -= 1;
+		}
+
+		ScreenLocation redPos = null, bluePos = null;
+
+		for (int x = 0; x < this.layout.length; x += 1) {
+			for (int y = 0; y < this.layout[x].length; y += 1) {
+				char c = this.layout[x][y];
+				GridLocation loc = new GridLocation(layoutOffsetX + x,
+						layoutOffsetY + y);
+
+				if (c == 'R' || c == 'O' || c == 'B') {
+					Tile t = new Tile(this.spriteManager);
+					t.setLocation(loc);
+					this.tiles.add(t);
+
+					if (c == 'R') {
+						Worker w = new Worker(this.spriteManager,
+								GamePlayer.RED);
+						w.setLocation(loc);
+						this.workers.add(w);
+						redPos = new ScreenLocation(loc);
+					} else if (c == 'B') {
+						Worker w = new Worker(this.spriteManager,
+								GamePlayer.BLUE);
+						w.setLocation(loc);
+						this.workers.add(w);
+						bluePos = new ScreenLocation(loc);
+					}
+				}
+			}
+		}
+
+		if (redPos != null && bluePos != null) {
+			this.centerLocation = new ScreenLocation(
+					(redPos.getScreenX() + bluePos.getScreenX()) / 2
+							 + Common.TILE_WIDTH_HALF,
+					(redPos.getScreenY() + bluePos.getScreenY()) / 2
+							+ Common.TILE_HEIGHT_HALF);
+		}
+	}
+
+	private boolean loadLayout(String name) {
+
+		try {
+			String layoutString = Utils.readTextAsset(this.getContext(), name);
+			if (layoutString == "") {
+				return false;
+			}
+			layoutString = layoutString.replace(",", "");
+			layoutString = layoutString.replace(".", "");
+
+			String[] layoutRows = layoutString.split("\n");
+			this.layout = new char[layoutRows[0].length()][layoutRows.length];
+			for (int r = 0; r < layoutRows.length; r += 1) {
+				String row = layoutRows[r].trim();
+				for (int c = 0; c < row.length(); c += 1) {
+					this.layout[c][r] = row.charAt(c);
+				}
+			}
+			return true;
+
+		} catch (Exception ex) {
+			Log.e("MainView", ex.getMessage());
+		}
+		return false;
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		this.surfaceWidth = width;
 		this.surfaceHeight = height;
-		this.offsetX = width / 2;
-		this.offsetY = height / 3;
+		this.offsetX = -1 * this.centerLocation.getScreenX()
+				+ this.surfaceWidth / 2;
+		this.offsetY = -1 * this.centerLocation.getScreenY()
+				+ this.surfaceHeight / 2;
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
+
+		this.game = new RiseGame();
+		this.game.setup(this.layout);
+
+		this.buildInitialLayout();
+
 		thread.setRunning(true);
 		thread.start();
-		Log.d(TAG, "Surface Created");
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		Log.d(TAG, "Surface is being destroyed");
-		// tell the thread to shut down and wait for it to finish
-		// this is a clean shutdown
 		boolean retry = true;
 		while (retry) {
 			try {
 				this.thread.join();
 				retry = false;
 			} catch (InterruptedException e) {
-				// try again shutting down the thread
 			}
 		}
-		Log.d(TAG, "Thread was shut down cleanly");
 	}
 
 	public void render(Canvas canvas) {
-		canvas.drawColor(Color.BLACK);
-		canvas.translate(this.offsetX, this.offsetY);
-		this.drawBackground(canvas);
-		// canvas.save();
-
-		this.drawTiles(canvas);
-		this.drawPieces(canvas);
-		this.drawInterface(canvas);
-		// canvas.restore();
+		try {
+			canvas.drawColor(Color.BLACK);
+			this.drawBackground(canvas);
+			canvas.save();
+			canvas.translate(this.offsetX, this.offsetY);
+			this.drawTiles(canvas);
+			this.drawPieces(canvas);
+			canvas.restore();
+			this.drawInterface(canvas);
+		} catch (Exception ex) {
+			Log.e(TAG, ex.getMessage());
+		}
 	}
 
 	private void drawBackground(Canvas canvas) {
-		for (int x = -2000; x < 2000; x += 256) {
-			for (int y = -2000; y < 2000; y += 256) {
+		for (int x = 0; x < surfaceWidth; x += 256) {
+			for (int y = 0; y < surfaceHeight; y += 256) {
 				canvas.drawBitmap(this.spriteManager.getBitmap("background"),
 						x, y, null);
 			}
@@ -133,18 +204,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void drawTiles(Canvas canvas) {
+		while (listLockout) {
+		}
+		listLockout = true;
 		for (Tile tile : this.tiles) {
 			tile.draw(canvas);
 		}
+		listLockout = false;
 	}
 
 	private void drawPieces(Canvas canvas) {
+
+		while (listLockout) {
+		}
+		listLockout = true;
 		for (Worker worker : this.workers) {
 			worker.draw(canvas);
 		}
 		for (Tower tower : this.towers) {
 			tower.draw(canvas);
 		}
+		listLockout = false;
 	}
 
 	private void drawInterface(Canvas canvas) {
@@ -152,19 +232,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void update() {
-		
+
 		if (this.sleepCounter > 0) {
 			this.sleepCounter -= 1;
 			return;
 		}
-		
+
+		while (listLockout) {
+		}
+		listLockout = true;
 		for (Worker worker : this.workers) {
 			worker.update();
 		}
-
 		for (Tower tower : this.towers) {
 			tower.update();
 		}
+		listLockout = false;
 	}
 
 	private void updateDrawOffset(float x, float y) {
@@ -185,6 +268,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			if (this.isDragging) {
 				updateDrawOffset(event.getX(), event.getY());
 				this.isDragging = false;
+			} else {
+				if (event.getPointerCount() == 1) {
+					this.onGameClick(event.getX(), event.getY());
+				} else {
+					Log.d(TAG, Utils.coordString(event.getX(), event.getY()));
+				}
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
@@ -200,6 +289,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 
 		return true;
+	}
+
+	private void onGameClick(float x, float y) {
+
+		int touchX = (int) (x - this.offsetX);
+		int touchY = (int) (y - this.offsetY);
+
+		GridLocation loc = new ScreenLocation(touchX, touchY).toGridLocation();
+		Tile t = new Tile(spriteManager);
+		t.setLocation(loc);
+		while (listLockout) {
+		}
+		listLockout = true;
+		tiles.add(t);
+		listLockout = false;
 	}
 
 }

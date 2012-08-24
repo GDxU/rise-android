@@ -16,7 +16,7 @@ public class GridLocation implements Location {
 		return toScreen().getScreenX();
 	}
 
-	private ScreenLocation toScreen() {
+	public ScreenLocation toScreen() {
 		int x = this.getGridX();
 		int y = this.getGridY();
 		
@@ -53,4 +53,11 @@ public class GridLocation implements Location {
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	@Override
+	public String toString() {
+		return "Grid Location: (" + String.valueOf(x) + ", " + String.valueOf(y) + ")";
+	}
+	
+	
 }
