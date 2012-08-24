@@ -5,6 +5,7 @@ import java.util.HashMap;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.util.SparseIntArray;
 
 import com.matthewtole.androidrise.R;
 
@@ -12,7 +13,7 @@ public class SoundManager {
 
 	static private SoundManager _instance;
 	private static SoundPool mSoundPool;
-	private static HashMap<Integer, Integer> mSoundPoolMap;
+	private static SparseIntArray mSoundPoolMap;
 	private static AudioManager mAudioManager;
 	private static Context mContext;
 
@@ -40,7 +41,7 @@ public class SoundManager {
 	public static void initSounds(Context theContext) {
 		mContext = theContext;
 		mSoundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
-		mSoundPoolMap = new HashMap<Integer, Integer>();
+		mSoundPoolMap = new SparseIntArray();
 		mAudioManager = (AudioManager) mContext
 				.getSystemService(Context.AUDIO_SERVICE);
 	}

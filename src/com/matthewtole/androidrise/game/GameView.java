@@ -21,7 +21,7 @@ import com.matthewtole.androidrise.lib.Utils;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
-	private static final String TAG = SurfaceHolder.class.getSimpleName();
+	private static final String TAG = GameView.class.getSimpleName();
 
 	private final float DRAG_START_AMOUNT = 30;
 
@@ -61,8 +61,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		SoundManager.getInstance();
 		SoundManager.initSounds(context);
 		SoundManager.loadSounds();
-
-		this.thread = new GameThread(this.getHolder(), this);
 
 		this.spriteManager = new SpriteManager(context);
 
@@ -169,12 +167,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.game.setup(this.layout);
 
 		this.buildInitialLayout();
-
-		thread.setRunning(true);
-		thread.start();
+		
+		this.thread = new GameThread(this.getHolder(), this);		
+		if (this.thread == null || ! thread.isRunning()) {
+			thread.setRunning(true);
+			thread.start();
+		}
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		thread.setRunning(false);
 		boolean retry = true;
 		while (retry) {
 			try {
@@ -197,6 +199,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			this.drawInterface(canvas);
 		} catch (Exception ex) {
 			Log.e(TAG, ex.getMessage() == null ? ex.toString() : ex.getMessage());
+			thread.setRunning(false);
 		}
 	}
 
@@ -381,12 +384,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			Toast toast = Toast.makeText(context, text, duration);
 			toast.show();
 		}
-
-		/*
-		 * Tile t = new Tile(spriteManager); t.setLocation(loc); while
-		 * (listLockout) { } listLockout = true; tiles.add(t); listLockout =
-		 * false;
-		 */
 	}
 
 	private Tower findTowerByLocation(GridLocation location) {

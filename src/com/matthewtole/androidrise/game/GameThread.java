@@ -14,7 +14,7 @@ public class GameThread extends Thread {
 	
 	private SurfaceHolder surfaceHolder;
 	private GameView gamePanel;
-	private boolean isRunning = true;	
+	private boolean isRunning = false;	
 	
 	public GameThread(SurfaceHolder surfaceHolder, GameView gamePanel) {
 		super();
@@ -25,6 +25,7 @@ public class GameThread extends Thread {
 	@Override
 	public void run() {
 		Canvas canvas;
+		isRunning = true;
 		Log.d(TAG, "Starting game loop");
 
 		long beginTime;		// the time when the cycle begun
@@ -87,5 +88,9 @@ public class GameThread extends Thread {
 
 	public void setRunning(boolean running) {
 		this.isRunning = running;
+	}
+
+	public boolean isRunning() {
+		return this.isRunning;
 	}
 }
