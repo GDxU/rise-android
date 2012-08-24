@@ -1,11 +1,14 @@
 package com.matthewtole.androidrise.game;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -13,6 +16,7 @@ import android.view.SurfaceView;
 import android.widget.Toast;
 
 import com.matthewtole.androidrise.game.enums.GamePlayer;
+import com.matthewtole.androidrise.game.pieces.Piece;
 import com.matthewtole.androidrise.game.pieces.Tile;
 import com.matthewtole.androidrise.game.pieces.Tower;
 import com.matthewtole.androidrise.game.pieces.Worker;
@@ -31,10 +35,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	private GameThread thread;
 	private int surfaceWidth = 0;
 	private int surfaceHeight = 0;
+	private int sidebarWidth = 250;
 
 	private RiseGame game;
 
 	private SpriteManager spriteManager;
+	private HashMap<String, Paint> paints;
 
 	private float offsetX = 0;
 	private float offsetY = 0;
@@ -50,11 +56,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private int sleepCounter = 50;
 
-	private Paint touchPaint;
-
 	private char[][] layout;
 
 	private ScreenLocation centerLocation;
+
+	private RectF sidebarRectangle;
 
 	public GameView(Context context) {
 		super(context);
@@ -73,9 +79,42 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 		this.loadLayout("the_pit");
 
-		this.touchPaint = new Paint();
-		this.touchPaint.setColor(Color.BLACK);
+		this.paints = new HashMap<String, Paint>();
+		this.makePaints();
+	}
 
+	private void makePaints() {
+		this.paints.put("sidebarBackground", new Paint());
+		this.paints.get("sidebarBackground").setColor(
+				Color.parseColor("#333333"));
+		this.paints.get("sidebarBackground").setStyle(Style.FILL);
+		this.paints.get("sidebarBackground").setAntiAlias(true);
+
+		this.paints.put("finishBackground", new Paint());
+		this.paints.get("finishBackground").setColor(
+				Color.parseColor("#333333"));
+		this.paints.get("finishBackground").setStyle(Style.FILL);
+		this.paints.get("finishBackground").setAntiAlias(true);
+		this.paints.get("finishBackground").setAlpha(200);
+
+		this.paints.put("text", new Paint());
+		this.paints.get("text").setColor(Color.WHITE);
+		this.paints.get("text").setTextSize(48);
+
+		Paint lineMaster = new Paint();
+		lineMaster.setColor(Color.WHITE);
+		lineMaster.setAntiAlias(true);
+		lineMaster.setStyle(Style.FILL);
+
+		this.paints.put("sidebarLineMiddle", new Paint(lineMaster));
+		this.paints.put("sidebarLineRed", new Paint(lineMaster));
+		this.paints.get("sidebarLineRed").setColor(Color.parseColor("#E72D18"));
+		this.paints.put("sidebarLineBlue", new Paint(lineMaster));
+		this.paints.get("sidebarLineBlue")
+				.setColor(Color.parseColor("#4B56CE"));
+		this.paints.put("sidebarLineDisabled", new Paint(lineMaster));
+		this.paints.get("sidebarLineDisabled").setColor(
+				Color.parseColor("#222222"));
 	}
 
 	private void buildInitialLayout() {
@@ -162,6 +201,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				+ this.surfaceWidth / 2;
 		this.offsetY = -1 * this.centerLocation.getScreenY()
 				+ this.surfaceHeight / 2;
+
+		this.sidebarRectangle = new RectF(10, 10, sidebarWidth - 10,
+				surfaceHeight - 10);
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
@@ -241,7 +283,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void drawInterface(Canvas canvas) {
-		// TODO Auto-generated method stub
+		canvas.drawBitmap(this.spriteManager.getBitmap("target"),
+				this.surfaceWidth
+						- this.spriteManager.getBitmap("target").getWidth()
+						- 10, 10, null);
+
+		canvas.drawRoundRect(this.sidebarRectangle, 20.0f, 20.0f,
+				this.paints.get("sidebarBackground"));
 	}
 
 	public void update() {
@@ -272,6 +320,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+
+		if (this.sidebarRectangle.contains(event.getX(), event.getY())) {
+			this.isDragging = false;
+			return true;
+		}
+
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			dragStartX = event.getX();
@@ -366,7 +420,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				break;
 			case GameUpdate.SACRIFICE_ADD: {
 				if (w == null) {
-					Worker newWorker = new Worker(spriteManager,
+					Worker newWorker = new Worker(
+							spriteManager,
 							(w2.getPlayer() == GamePlayer.BLUE) ? GamePlayer.BLUE
 									: GamePlayer.RED);
 					newWorker.setLocation(update.location);
@@ -393,7 +448,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private Tower findTowerByLocation(GridLocation location) {
-		// TODO Auto-generated method stub
+		if (location == null) {
+			return null;
+		}
+
+		for (Tower t : this.towers) {
+			if (t.getLocation().equals(location)) {
+				return t;
+			}
+		}
 		return null;
 	}
 
