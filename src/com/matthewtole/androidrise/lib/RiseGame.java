@@ -76,49 +76,11 @@ public class RiseGame {
 		this.buildLayout(layout);
 	}
 
-	private void buildLayout(char[][] layout) {
-		int layoutOffsetX = (TILE_COUNT / 2) - layout.length / 2;
-		int layoutOffsetY = (TILE_COUNT / 2) - layout[0].length / 2;
-		if (layoutOffsetX % 2 == 1) {
-			layoutOffsetX -= 1;
-		}
-		if (layoutOffsetY % 2 == 1) {
-			layoutOffsetY -= 1;
-		}
-
-		for (int x = 0; x < layout.length; x += 1) {
-			for (int y = 0; y < layout[x].length; y += 1) {
-				RiseTile tile = this.board[layoutOffsetX + x][layoutOffsetY + y];
-				switch (layout[x][y]) {
-				case 'B':
-					tile.setWorker(RiseGame.BLUE);
-					break;
-				case 'R':
-					tile.setWorker(RiseGame.RED);
-					break;
-				case 'O':
-					tile.setTile();
-					break;
-				}
-			}
-		}
-	}
-
 	public boolean hasPiece(int x, int y) {
 		if (!validLocation(x, y)) {
 			return false;
 		}
 		return this.getTile(x, y).isPiece();
-	}
-
-	private boolean validLocation(int x, int y) {
-		if (x < 0 || y < 0) {
-			return false;
-		}
-		if (x >= TILE_COUNT || y >= TILE_COUNT) {
-			return false;
-		}
-		return true;
 	}
 
 	public int pieceColour(int x, int y) {
@@ -136,13 +98,6 @@ public class RiseGame {
 			return 0;
 		}
 		return this.getTile(x, y).towerHeight();
-	}
-
-	private RiseTile getTile(int x, int y) {
-		if (!validLocation(x, y)) {
-			return null;
-		}
-		return this.board[x][y];
 	}
 
 	public int towerColour(int x, int y) {
@@ -210,6 +165,75 @@ public class RiseGame {
 		}
 
 		return false;
+	}
+
+	public int getCurrentPlayer() {
+		return this.turn;
+	}
+
+	public boolean isSelectedWorker(int x, int y) {
+		return this.getTile(x, y).isSelected();
+	}
+
+	public int getMovesLeft() {
+		return this.moveCounter;
+	}
+
+	public int getState() {
+		return this.gameState;
+	}
+	
+	public int getWinner() {
+		return this.gameWinner;
+	}
+	
+	public int getVictoryType() {
+		return this.victoryType;
+	}
+
+	private void buildLayout(char[][] layout) {
+		int layoutOffsetX = (TILE_COUNT / 2) - layout.length / 2;
+		int layoutOffsetY = (TILE_COUNT / 2) - layout[0].length / 2;
+		if (layoutOffsetX % 2 == 1) {
+			layoutOffsetX -= 1;
+		}
+		if (layoutOffsetY % 2 == 1) {
+			layoutOffsetY -= 1;
+		}
+	
+		for (int x = 0; x < layout.length; x += 1) {
+			for (int y = 0; y < layout[x].length; y += 1) {
+				RiseTile tile = this.board[layoutOffsetX + x][layoutOffsetY + y];
+				switch (layout[x][y]) {
+				case 'B':
+					tile.setWorker(RiseGame.BLUE);
+					break;
+				case 'R':
+					tile.setWorker(RiseGame.RED);
+					break;
+				case 'O':
+					tile.setTile();
+					break;
+				}
+			}
+		}
+	}
+
+	private boolean validLocation(int x, int y) {
+		if (x < 0 || y < 0) {
+			return false;
+		}
+		if (x >= TILE_COUNT || y >= TILE_COUNT) {
+			return false;
+		}
+		return true;
+	}
+
+	private RiseTile getTile(int x, int y) {
+		if (!validLocation(x, y)) {
+			return null;
+		}
+		return this.board[x][y];
 	}
 
 	private boolean doActionSacrifice(int x, int y, int player) {
@@ -509,22 +533,6 @@ public class RiseGame {
 			}
 		}
 		return false;
-	}
-
-	public int getCurrentPlayer() {
-		return this.turn;
-	}
-
-	public boolean isSelectedWorker(int x, int y) {
-		return this.getTile(x, y).isSelected();
-	}
-
-	public int getMovesLeft() {
-		return this.moveCounter;
-	}
-
-	public int getState() {
-		return this.gameState;
 	}
 
 }
