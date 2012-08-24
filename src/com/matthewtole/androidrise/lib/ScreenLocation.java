@@ -11,6 +11,15 @@ public class ScreenLocation implements Location {
 		this.x = x;
 		this.y = y;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o.getClass() != this.getClass()) {
+			return super.equals(o);
+		}
+		ScreenLocation other = (ScreenLocation)o;
+		return (this.x == other.x && this.y == other.y);
+	}
 
 	public ScreenLocation(Location loc) {
 		this.x = loc.getScreenX();

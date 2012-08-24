@@ -16,26 +16,25 @@ public class Piece {
 
 	protected SpriteManager sprites;
 	protected ScreenLocation location;
+	protected GridLocation gridLocation;
 
 	protected String bitmap = "";
 	protected PieceState state = PieceState.DEFAULT;
 
 	private ScreenLocation target;
-	private int MOVE_SPEED = 3;
+	private int MOVE_SPEED = 5;
 
 	public Piece(SpriteManager sprites) {
 		this.sprites = sprites;
 	}
 
 	public void setLocation(GridLocation loc) {
-		this.setLocation(loc, true);
-	}
-
-	public void setLocation(ScreenLocation loc) {
+		this.gridLocation = loc;
 		this.setLocation(loc, true);
 	}
 
 	public void setLocation(GridLocation loc, boolean instant) {
+		this.gridLocation = loc;
 		if (instant) {
 			this.location = new ScreenLocation(loc);
 		} else {
@@ -44,13 +43,8 @@ public class Piece {
 		}
 	}
 
-	public void setLocation(ScreenLocation loc, boolean instant) {
-		if (instant) {
-			this.location = new ScreenLocation(loc);
-		} else {
-			this.target = loc;
-			this.state = PieceState.MOVING;
-		}
+	public GridLocation getLocation() {
+		return this.gridLocation;
 	}
 
 	public void draw(Canvas canvas) {
