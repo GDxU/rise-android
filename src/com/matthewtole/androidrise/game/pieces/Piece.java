@@ -19,8 +19,7 @@ public class Piece {
 	protected ScreenLocation location;
 	protected GridLocation gridLocation;
 
-	protected PieceState state = PieceState.DEFAULT;
-
+	protected boolean isMoving = false;
 	private ScreenLocation target;
 	private int MOVE_SPEED = 5;
 
@@ -41,7 +40,7 @@ public class Piece {
 			this.location = new ScreenLocation(loc);
 		} else {
 			this.target = new ScreenLocation(loc);
-			this.state = PieceState.MOVING;
+			this.isMoving = true;
 		}
 	}
 
@@ -53,10 +52,8 @@ public class Piece {
 	}
 
 	public void update() {
-		switch (this.state) {
-		case MOVING:
+		if (this.isMoving) {
 			this.move();
-			break;
 		}
 	}
 
@@ -92,19 +89,23 @@ public class Piece {
 				y -= this.MOVE_SPEED;
 			}
 		}
-		
+
+		if (x == this.target.getScreenX() && y == this.target.getScreenY()) {
+			this.isMoving = false;
+		}
+
 		this.setLocation(x, y);
 	}
 
 	protected void setLocation(int x, int y) {
-		this.location = new ScreenLocation(x, y);		
+		this.location = new ScreenLocation(x, y);
 	}
 
 	public void hide() {
-		this.hidden = true;		
+		this.hidden = true;
 	}
-	
+
 	public void show() {
-		this.hidden = false;		
+		this.hidden = false;
 	}
 }

@@ -15,7 +15,7 @@ public class Worker extends CompositePiece {
 		this.player = player;
 
 		this.addPiece(new WorkerDisc(sprites, player));
-		this.addPiece(new StaticPiece(sprites, "highlight"));
+		this.addPiece(new AnimatedPiece(sprites, "dots", 6));
 		this.hidePiece(1);
 
 	}

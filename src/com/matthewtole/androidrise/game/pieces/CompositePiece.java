@@ -39,6 +39,14 @@ public class CompositePiece extends Piece {
 			p.draw(canvas);
 		}
 	}
+	
+	@Override
+	public void update() {
+		super.update();
+		for (Piece p : this.pieces) {
+			p.update();
+		}
+	}
 
 	@Override
 	public void setLocation(GridLocation loc, boolean instant) {
