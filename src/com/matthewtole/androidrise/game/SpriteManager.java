@@ -1,4 +1,4 @@
-package com.matthewtole.androidrise.lib;
+package com.matthewtole.androidrise.game;
 
 import java.io.IOException;
 import java.io.InputStream;

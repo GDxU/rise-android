@@ -16,9 +16,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.matthewtole.androidrise.lib.GridRef;
+import com.matthewtole.androidrise.crap.GridRef;
+import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.lib.RiseGame;
-import com.matthewtole.androidrise.lib.SpriteManager;
 
 public class MainView extends View {
 

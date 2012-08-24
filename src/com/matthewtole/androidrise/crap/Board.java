@@ -1,6 +1,7 @@
-package com.matthewtole.androidrise.lib;
+package com.matthewtole.androidrise.crap;
 
 import java.util.ArrayList;
+
 
 public class Board {
 	
