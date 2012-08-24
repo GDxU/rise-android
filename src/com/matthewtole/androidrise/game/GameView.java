@@ -10,8 +10,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import com.matthewtole.androidrise.game.enums.GamePlayer;
+import com.matthewtole.androidrise.lib.GameUpdate;
 import com.matthewtole.androidrise.lib.GridLocation;
 import com.matthewtole.androidrise.lib.RiseGame;
 import com.matthewtole.androidrise.lib.ScreenLocation;
@@ -53,8 +55,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public GameView(Context context) {
 		super(context);
-
 		this.getHolder().addCallback(this);
+		this.setFocusable(true);
+
+		SoundManager.getInstance();
+		SoundManager.initSounds(context);
+		SoundManager.loadSounds();
+
 		this.thread = new GameThread(this.getHolder(), this);
 
 		this.spriteManager = new SpriteManager(context);
@@ -68,7 +75,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.touchPaint = new Paint();
 		this.touchPaint.setColor(Color.BLACK);
 
-		this.setFocusable(true);
 	}
 
 	private void buildInitialLayout() {
@@ -115,7 +121,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		if (redPos != null && bluePos != null) {
 			this.centerLocation = new ScreenLocation(
 					(redPos.getScreenX() + bluePos.getScreenX()) / 2
-							 + Common.TILE_WIDTH_HALF,
+							+ Common.TILE_WIDTH_HALF,
 					(redPos.getScreenY() + bluePos.getScreenY()) / 2
 							+ Common.TILE_HEIGHT_HALF);
 		}
@@ -190,7 +196,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			canvas.restore();
 			this.drawInterface(canvas);
 		} catch (Exception ex) {
-			Log.e(TAG, ex.getMessage());
+			Log.e(TAG, ex.getMessage() == null ? ex.toString() : ex.getMessage());
 		}
 	}
 
@@ -297,13 +303,108 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		int touchY = (int) (y - this.offsetY);
 
 		GridLocation loc = new ScreenLocation(touchX, touchY).toGridLocation();
-		Tile t = new Tile(spriteManager);
-		t.setLocation(loc);
-		while (listLockout) {
+		GameUpdate update = this.game.doAction(loc.getGridX(), loc.getGridY(),
+				this.game.getCurrentPlayer());
+
+		if (update.success) {
+			Worker w = findWorkerByLocation(update.location);
+			Worker w2 = findWorkerByLocation(update.locationSecondary);
+			Worker w3 = findWorkerByLocation(update.locationTertiary);
+
+			switch (update.type) {
+			case GameUpdate.WORKER_SELECTED:
+				if (w != null) {
+					w.setSelected(true);
+				}
+				break;
+			case GameUpdate.WORKER_UNSELECTED:
+				if (w != null) {
+					w.setSelected(false);
+				}
+				break;
+			case GameUpdate.WORKER_MOVED:
+				if (w != null) {
+					w.setLocation(update.locationSecondary, false);
+					w.setSelected(false);
+				}
+				break;
+			case GameUpdate.WORKER_ADDED: {
+				Worker newWorker = new Worker(spriteManager,
+						update.extraInt == RiseGame.BLUE ? GamePlayer.BLUE
+								: GamePlayer.RED);
+				newWorker.setLocation(update.location);
+				this.workers.add(newWorker);
+			}
+				break;
+			case GameUpdate.WORKER_JUMP:
+				w.setLocation(update.locationSecondary, false);
+				w.setSelected(false);
+				this.workers.remove(w3);
+				break;
+			case GameUpdate.TILE_ADDED: {
+				Tile t = new Tile(spriteManager);
+				t.setLocation(update.location);
+				this.tiles.add(t);
+			}
+				break;
+			case GameUpdate.TOWER_REDUCED: {
+				Tower t = findTowerByLocation(update.location);
+				t.removeLevel();
+			}
+				break;
+			case GameUpdate.TOWER_DEMOLISHED: {
+				Tower t = findTowerByLocation(update.location);
+				this.towers.remove(t);
+			}
+				break;
+			case GameUpdate.SACRIFICE_ADD: {
+				Worker newWorker = new Worker(spriteManager,
+						(w.getPlayer() == GamePlayer.RED) ? GamePlayer.BLUE
+								: GamePlayer.RED);
+				newWorker.setLocation(update.location);
+				this.workers.add(newWorker);
+				this.workers.remove(w2);
+				this.workers.remove(w3);
+			}
+				break;
+			case GameUpdate.SACRIFICE_REMOVE: {
+				this.workers.remove(w);
+				this.workers.remove(w2);
+				this.workers.remove(w3);
+			}
+				break;
+			}
+		} else {
+			Context context = this.getContext();
+			CharSequence text = update.failureReason;
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
 		}
-		listLockout = true;
-		tiles.add(t);
-		listLockout = false;
+
+		/*
+		 * Tile t = new Tile(spriteManager); t.setLocation(loc); while
+		 * (listLockout) { } listLockout = true; tiles.add(t); listLockout =
+		 * false;
+		 */
+	}
+
+	private Tower findTowerByLocation(GridLocation location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Worker findWorkerByLocation(GridLocation location) {
+		if (location == null) {
+			return null;
+		}
+
+		for (Worker w : this.workers) {
+			if (w.getLocation().equals(location)) {
+				return w;
+			}
+		}
+		return null;
 	}
 
 }

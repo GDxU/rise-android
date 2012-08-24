@@ -145,12 +145,16 @@ public class RiseGame {
 		return boardCopy;
 	}
 
-	public boolean doAction(int x, int y, int player) {
+	public GameUpdate doAction(int x, int y, int player) {
 
 		this.oldBoards.push(copyBoard());
 
-		if (this.turn != player || !this.validLocation(x, y)) {
-			return false;
+		if (this.turn != player) {
+			return new GameUpdate(false, "Not your turn!");
+		}
+
+		if (!this.validLocation(x, y)) {
+			return new GameUpdate(false, "Invalid location");
 		}
 
 		switch (this.turnState) {
@@ -164,7 +168,7 @@ public class RiseGame {
 			return doActionSacrifice(x, y, player);
 		}
 
-		return false;
+		return new GameUpdate(false, "Nothing to do here");
 	}
 
 	public int getCurrentPlayer() {
@@ -182,11 +186,11 @@ public class RiseGame {
 	public int getState() {
 		return this.gameState;
 	}
-	
+
 	public int getWinner() {
 		return this.gameWinner;
 	}
-	
+
 	public int getVictoryType() {
 		return this.victoryType;
 	}
@@ -200,7 +204,7 @@ public class RiseGame {
 		if (layoutOffsetY % 2 == 1) {
 			layoutOffsetY -= 1;
 		}
-	
+
 		for (int x = 0; x < layout.length; x += 1) {
 			for (int y = 0; y < layout[x].length; y += 1) {
 				RiseTile tile = this.board[layoutOffsetX + x][layoutOffsetY + y];
@@ -236,51 +240,67 @@ public class RiseGame {
 		return this.board[x][y];
 	}
 
-	private boolean doActionSacrifice(int x, int y, int player) {
+	private GameUpdate doActionSacrifice(int x, int y, int player) {
 		RiseTile theTile = this.getTile(x, y);
 
 		// SACRIFICE TO PLACE ANYWHERE
-		if (theTile.isTile() && (WORKER_COUNT - this.availableWorkers[player] > 2)) {
+		if (theTile.isTile()
+				&& (WORKER_COUNT - this.availableWorkers[player] > 2)) {
 			this.sacrifices[0].setTile();
 			this.sacrifices[1].setTile();
 			this.availableWorkers[player] += 2;
 			theTile.setWorker(player);
-			this.availableWorkers[player] -= 1;			
+			this.availableWorkers[player] -= 1;
 			this.moveMade(player);
-			return true;
+			return new GameUpdate(GameUpdate.SACRIFICE_ADD,
+					new GridLocation(x, y), new GridLocation(
+							this.sacrifices[0].getX(),
+							this.sacrifices[0].getY()), new GridLocation(
+							this.sacrifices[1].getX(),
+							this.sacrifices[1].getY()));
 		}
 		// SACRIFICE TO REMOVE OTHER PLAYER
-		if (theTile.isWorker(RiseGame.otherPlayer(player)) && (WORKER_COUNT - this.availableWorkers[player] > 2)) {
+		if (theTile.isWorker(RiseGame.otherPlayer(player))
+				&& (WORKER_COUNT - this.availableWorkers[player] > 2)) {
 			this.sacrifices[0].setTile();
 			this.sacrifices[1].setTile();
 			this.availableWorkers[player] += 2;
 			theTile.setTile();
 			this.availableWorkers[RiseGame.otherPlayer(player)] += 1;
 			this.moveMade(player);
-			return true;
+			return new GameUpdate(GameUpdate.SACRIFICE_REMOVE,
+					new GridLocation(x, y), new GridLocation(
+							this.sacrifices[0].getX(),
+							this.sacrifices[0].getY()), new GridLocation(
+							this.sacrifices[1].getX(),
+							this.sacrifices[1].getY()));
 		}
+		// UNSELECT THIS TILE
 		if (theTile == this.sacrifices[0] || theTile == this.sacrifices[1]) {
 			this.turnState = RiseGame.TURN_STATE_WORKER_SELECTED;
 			theTile.unselect();
 			if (theTile == this.sacrifices[0]) {
 				this.selectedTile = this.sacrifices[1];
-			}
-			else {
+			} else {
 				this.selectedTile = this.sacrifices[0];
 			}
-			return true;
+			return new GameUpdate(GameUpdate.WORKER_UNSELECTED, new GridLocation(x, y));
+			
 		}
-		return false;
+
+		return new GameUpdate(false, "Invalid move [sacrifice]");
 	}
 
-	private boolean doActionSelected(int x, int y, int player) {
+	private GameUpdate doActionSelected(int x, int y, int player) {
 		RiseTile theTile = this.getTile(x, y);
+
 		// UNSELECT WORKER
 		if (theTile == this.selectedTile) {
 			this.turnState = RiseGame.TURN_STATE_NOTHING;
 			this.selectedTile.unselect();
 			this.selectedTile = null;
-			return true;
+			return new GameUpdate(GameUpdate.WORKER_UNSELECTED,
+					new GridLocation(x, y));
 		}
 		// GO INTO SACRIFICE
 		if (theTile.isWorker(player)) {
@@ -289,15 +309,20 @@ public class RiseGame {
 			this.sacrifices[0] = this.selectedTile;
 			this.sacrifices[1] = theTile;
 			this.selectedTile = null;
+			return new GameUpdate(GameUpdate.WORKER_SELECTED, new GridLocation(
+					x, y));
 		}
 		// MOVE WORKER
 		if (theTile.isTile() && this.areNeighbours(theTile, this.selectedTile)) {
 			theTile.setWorker(player);
 			this.selectedTile.setTile();
 			this.selectedTile.unselect();
+			GridLocation tmpLocation = new GridLocation(
+					this.selectedTile.getX(), this.selectedTile.getY());
 			this.selectedTile = null;
 			this.moveMade(player);
-			return true;
+			return new GameUpdate(GameUpdate.WORKER_MOVED, tmpLocation,
+					new GridLocation(x, y));
 		}
 		// JUMP WORKER
 		if (theTile.isTile()) {
@@ -311,16 +336,20 @@ public class RiseGame {
 					this.availableWorkers[RiseGame.otherPlayer(player)] += 1;
 					this.selectedTile.setTile();
 					this.selectedTile.unselect();
+					GridLocation tmp = new GridLocation(
+							this.selectedTile.getX(), this.selectedTile.getY());
 					this.selectedTile = null;
 					this.moveMade(player);
-					return true;
+					return new GameUpdate(GameUpdate.WORKER_JUMP, tmp,
+							new GridLocation(x, y), new GridLocation(
+									neighbours[n].getX(), neighbours[n].getY()));
 				}
 			}
 		}
-		return false;
+		return new GameUpdate(false, "Invalid move [selected]");
 	}
 
-	private boolean doActionNothing(int x, int y, int player) {
+	private GameUpdate doActionNothing(int x, int y, int player) {
 		RiseTile theTile = this.getTile(x, y);
 
 		// ADD TILE
@@ -329,9 +358,10 @@ public class RiseGame {
 				theTile.setTile();
 				this.availableTiles -= 1;
 				this.moveMade(player);
-				return true;
+				return new GameUpdate(GameUpdate.TILE_ADDED, new GridLocation(
+						x, y));
 			} else {
-				return false;
+				return new GameUpdate(false, "Cannot add a tile here.");
 			}
 		}
 		// ADD WORKER
@@ -340,9 +370,10 @@ public class RiseGame {
 				theTile.setWorker(player);
 				this.availableWorkers[player] -= 1;
 				this.moveMade(player);
-				return true;
+				return new GameUpdate(GameUpdate.WORKER_ADDED,
+						new GridLocation(x, y), player);
 			} else {
-				return false;
+				return new GameUpdate(false, "Cannot add a worker here.");
 			}
 		}
 		// REMOVE TOWER
@@ -350,9 +381,14 @@ public class RiseGame {
 			if (theTile.demolishTower()) {
 				this.towerCounts[player] -= 1;
 				this.moveMade(player);
-				return true;
+				if (theTile.isTower()) {
+					return new GameUpdate(GameUpdate.TOWER_REDUCED,
+							new GridLocation(x, y), theTile.towerHeight());
+				}
+				return new GameUpdate(GameUpdate.TOWER_DEMOLISHED,
+						new GridLocation(x, y));
 			} else {
-				return false;
+				return new GameUpdate(false, "Cannot demolish this tower");
 			}
 		}
 		// SELECT WORKER
@@ -360,10 +396,11 @@ public class RiseGame {
 			theTile.select();
 			this.turnState = RiseGame.TURN_STATE_WORKER_SELECTED;
 			this.selectedTile = theTile;
-			return true;
+			return new GameUpdate(GameUpdate.WORKER_SELECTED, new GridLocation(
+					x, y));
 		}
 
-		return false;
+		return new GameUpdate(false, "Invalid move [nothing].");
 	}
 
 	private static int otherPlayer(int player) {
@@ -418,8 +455,7 @@ public class RiseGame {
 		this.moveCounter -= 1;
 		if (this.moveCounter <= 0) {
 			this.endTurn();
-		}
-		else if (this.checkVictory()) {
+		} else if (this.checkVictory()) {
 			return;
 		}
 	}
@@ -464,14 +500,15 @@ public class RiseGame {
 	}
 
 	private boolean checkVictory() {
-		
+
 		if (this.availableWorkers[RiseGame.otherPlayer(turn)] == WORKER_COUNT) {
 			this.gameWon(this.turn, RiseGame.VICTORY_ELIMINATION);
-			return true;			
+			return true;
 		}
 		if (this.availableWorkers[this.turn] == WORKER_COUNT) {
-			this.gameWon(RiseGame.otherPlayer(this.turn), RiseGame.VICTORY_ELIMINATION);
-			return true;			
+			this.gameWon(RiseGame.otherPlayer(this.turn),
+					RiseGame.VICTORY_ELIMINATION);
+			return true;
 		}
 		return false;
 	}
