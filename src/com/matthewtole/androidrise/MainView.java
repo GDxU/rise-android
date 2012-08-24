@@ -27,9 +27,15 @@ public class MainView extends View {
 	private SpriteManager spriteManager;
 	private HashMap<String, Paint> paints;
 
-	private final static int SIZE_MIN = 0;
-	private final static int SIZE_MAX = 60;
-	private final static int DRAG_START_AMOUNT = 20;
+	private final int SIZE_MIN = 0;
+	private final int SIZE_MAX = 60;
+	private final int DRAG_START_AMOUNT = 20;
+	private final int TILE_HEIGHT = 100;
+	private final int TILE_WIDTH = 86;
+
+	private final int TILE_HEIGHT_HALF = TILE_HEIGHT / 2;
+	private final int TILE_WIDTH_HALF = TILE_WIDTH / 2;
+	private final int TILE_HEIGHT_THREEQUARTERS = (TILE_HEIGHT / 4) * 3;
 
 	private boolean dragging = false;
 	private float dragStartX = 0;
@@ -38,19 +44,20 @@ public class MainView extends View {
 	private int drawOffsetX = 0;
 	private int drawOffsetY = 0;
 
-	private int tileHighlightedX = 0;
-	private int tileHighlightedY = 0;
-
 	private int canvasWidth = 0;
 	private int canvasHeight = 0;
+	private int canvasWidthHalf = 0;
+	private int canvasHeightHalf = 0;
+
 	private int sidebarWidth = 0;
-	private int tileHeight = 0;
-	private int tileWidth = 0;
 
 	private char[][] layout;
 	private int[] layoutHome;
 
 	private boolean firstDraw = true;
+
+	private int centerX = 0;
+	private int centerY = 0;
 
 	public MainView(Context context) {
 		super(context);
@@ -60,14 +67,7 @@ public class MainView extends View {
 		this.game.setup(this.layout);
 		this.layoutHome = new int[2];
 
-		/*
-		 * this.bitmaps = new HashMap<String, Bitmap>(); this.loadBitmaps();
-		 */
 		this.spriteManager = new SpriteManager(context);
-
-		tileHeight = this.spriteManager.getBitmap("tile").getHeight() + 4;
-		tileWidth = this.spriteManager.getBitmap("tile").getWidth() - 10;
-
 		this.paints = new HashMap<String, Paint>();
 		this.makePaints();
 	}
@@ -114,27 +114,32 @@ public class MainView extends View {
 			}
 			break;
 		}
-	
+
 		return true;
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-	
-		if (firstDraw) {
+
+		if (firstDraw) {			
 			canvasWidth = canvas.getWidth();
 			canvasHeight = canvas.getHeight();
+			canvasWidthHalf = canvasWidth / 2;
+			canvasHeightHalf = canvasHeight / 2;
+			centerX = drawOffsetX + canvasWidthHalf;
+			centerY = drawOffsetY + canvasHeightHalf;
+
 			sidebarWidth = 250;
 			this.jumpToCenter(canvas);
 			firstDraw = false;
 		}
-	
+
 		canvas.drawColor(Color.BLACK);
-	
+
 		this.drawBackground(canvas);
 		this.drawTiles(canvas);
 		this.drawPieces(canvas);
-	
+
 		if (this.game.getState() == RiseGame.GAME_STATE_DONE) {
 			this.drawFinishScreen(canvas);
 		} else {
@@ -249,10 +254,11 @@ public class MainView extends View {
 				(piece1[0] + piece2[0]) / 2, (piece1[1] + piece2[1]) / 2);
 		this.drawOffsetX = (-1 * tmp[0])
 				+ (this.sidebarWidth + (this.canvasWidth - sidebarWidth) / 2);
-		this.drawOffsetY = (-1 * tmp[1]) + this.canvasHeight / 2;
+		this.drawOffsetY = (-1 * tmp[1]) + canvasHeightHalf;
+		centerX = drawOffsetX + canvasWidthHalf;
+		centerY = drawOffsetY + canvasHeightHalf;
 		this.layoutHome[0] = this.drawOffsetX;
 		this.layoutHome[1] = this.drawOffsetY;
-
 	}
 
 	private void drawInterface(Canvas canvas) {
@@ -320,16 +326,10 @@ public class MainView extends View {
 	}
 
 	private int[] tilePosToScreenCoordinates(Canvas canvas, int x, int y) {
-		int centerX = drawOffsetX + (canvas.getWidth() / 2);
-		int centerY = drawOffsetY + (canvas.getHeight() / 2);
-
-		int tileW2 = tileWidth / 2;
-		int tileH4 = (tileHeight / 4) * 3;
-
-		int wX = (centerX + (tileWidth * x));
-		int wY = (centerY + (tileH4 * y));
+		int wX = (centerX + (TILE_WIDTH * x));
+		int wY = (centerY + (TILE_HEIGHT_THREEQUARTERS * y));
 		if (Math.abs(y % 2) == 1) {
-			wX += tileW2;
+			wX += TILE_WIDTH_HALF;
 		}
 
 		return new int[] { wX, wY };
@@ -337,23 +337,20 @@ public class MainView extends View {
 
 	private void drawBitmap(Canvas canvas, int x, int y, Bitmap bitmap) {
 
-		int centerX = drawOffsetX + (canvas.getWidth() / 2);
-		int centerY = drawOffsetY + (canvas.getHeight() / 2);
+		int centerX = drawOffsetX + canvasWidthHalf;
+		int centerY = drawOffsetY + canvasHeightHalf;
 
-		int tileW2 = tileWidth / 2;
-		int tileH4 = (tileHeight / 4) * 3;
-		int tileH2 = tileHeight / 2;
-
-		int wX = (centerX + (tileWidth * x));
-		int wY = (centerY + (tileH4 * y));
+		int wX = (centerX + (TILE_WIDTH * x));
+		int wY = (centerY + (TILE_HEIGHT_THREEQUARTERS * y));
 		if (Math.abs(y % 2) == 1) {
-			wX += tileW2;
+			wX += TILE_WIDTH_HALF;
 		}
 
-		canvas.drawBitmap(bitmap, wX - tileW2, wY - tileH2, null);
+		canvas.drawBitmap(bitmap, wX - TILE_WIDTH_HALF, wY - TILE_HEIGHT_HALF,
+				null);
 	}
 
-	private void drawTile(Canvas canvas, int x, int y, boolean highlight) {
+	private void drawTile(Canvas canvas, int x, int y) {
 		if (this.game.hasTile(x, y)) {
 			this.drawBitmap(canvas, x, y, this.spriteManager.getBitmap("tile"));
 		}
@@ -362,18 +359,14 @@ public class MainView extends View {
 	private void drawTiles(Canvas canvas) {
 		for (int tX = SIZE_MIN; tX < SIZE_MAX; tX += 1) {
 			for (int tY = SIZE_MIN; tY < SIZE_MAX; tY += 1) {
-				if (tileHighlightedX == tX && tileHighlightedY == tY) {
-					drawTile(canvas, tX, tY, true);
-				} else {
-					drawTile(canvas, tX, tY, false);
-				}
+				drawTile(canvas, tX, tY);
 			}
 		}
 	}
 
 	private void drawBackground(Canvas canvas) {
-		for (int x = -256; x < canvas.getWidth() + 256; x += 256) {
-			for (int y = -256; y < canvas.getHeight() + 256; y += 256) {
+		for (int x = -256; x < canvasWidth + 256; x += 256) {
+			for (int y = -256; y < canvasHeight + 256; y += 256) {
 				canvas.drawBitmap(this.spriteManager.getBitmap("background"), x
 						+ (this.drawOffsetX % 256), y
 						+ (this.drawOffsetY % 256), null);
@@ -402,6 +395,8 @@ public class MainView extends View {
 	private void resetPosition() {
 		this.drawOffsetX = this.layoutHome[0];
 		this.drawOffsetY = this.layoutHome[1];
+		centerX = drawOffsetX + canvasWidthHalf;
+		centerY = drawOffsetY + canvasHeightHalf;
 		this.invalidate();
 	}
 
@@ -427,26 +422,26 @@ public class MainView extends View {
 		x -= drawOffsetX;
 		y -= drawOffsetY;
 
-		x = x - (canvasWidth / 2);
-		y = y - (canvasHeight / 2);
+		x = x - canvasWidthHalf;
+		y = y - canvasHeightHalf;
 
 		if (y < 0) {
-			y -= tileHeight / 2;
+			y -= TILE_HEIGHT_HALF;
 		} else {
-			y += tileHeight / 2;
+			y += TILE_HEIGHT_HALF;
 		}
 
 		if (x < 0) {
-			x -= tileWidth / 2;
+			x -= TILE_WIDTH_HALF;
 		} else if (x > 0) {
-			x += tileWidth / 2;
+			x += TILE_WIDTH_HALF;
 		}
 
-		int gY = (int) (y / ((tileHeight / 4) * 3));
+		int gY = (int) (y / TILE_HEIGHT_THREEQUARTERS);
 		if (Math.abs(gY % 2) == 1) {
-			x -= tileWidth / 2;
+			x -= TILE_WIDTH_HALF;
 		}
-		int gX = (int) (x / tileWidth);
+		int gX = (int) (x / TILE_WIDTH);
 
 		return new GridRef(gX, gY);
 	}
