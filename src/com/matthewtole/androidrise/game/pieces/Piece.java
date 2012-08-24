@@ -1,7 +1,8 @@
-package com.matthewtole.androidrise.game;
+package com.matthewtole.androidrise.game.pieces;
 
 import android.graphics.Canvas;
 
+import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.lib.GridLocation;
 import com.matthewtole.androidrise.lib.ScreenLocation;
 
@@ -18,11 +19,12 @@ public class Piece {
 	protected ScreenLocation location;
 	protected GridLocation gridLocation;
 
-	protected String bitmap = "";
 	protected PieceState state = PieceState.DEFAULT;
 
 	private ScreenLocation target;
 	private int MOVE_SPEED = 5;
+
+	protected boolean hidden = false;
 
 	public Piece(SpriteManager sprites) {
 		this.sprites = sprites;
@@ -48,11 +50,6 @@ public class Piece {
 	}
 
 	public void draw(Canvas canvas) {
-		if (bitmap.length() > 0) {
-			canvas.drawBitmap(this.sprites.getBitmap(this.bitmap),
-					this.location.getScreenX(), this.location.getScreenY(),
-					null);
-		}
 	}
 
 	public void update() {
@@ -63,7 +60,7 @@ public class Piece {
 		}
 	}
 
-	private void move() {
+	protected void move() {
 
 		int x = this.location.getScreenX();
 		int y = this.location.getScreenY();
@@ -95,7 +92,19 @@ public class Piece {
 				y -= this.MOVE_SPEED;
 			}
 		}
+		
+		this.setLocation(x, y);
+	}
 
-		this.location = new ScreenLocation(x, y);
+	protected void setLocation(int x, int y) {
+		this.location = new ScreenLocation(x, y);		
+	}
+
+	public void hide() {
+		this.hidden = true;		
+	}
+	
+	public void show() {
+		this.hidden = false;		
 	}
 }

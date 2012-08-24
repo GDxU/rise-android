@@ -1,9 +1,10 @@
-package com.matthewtole.androidrise.game;
+package com.matthewtole.androidrise.game.pieces;
 
+import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.game.enums.GamePlayer;
 import com.matthewtole.androidrise.lib.Utils;
 
-public class Tower extends Piece {
+public class Tower extends BitmapPiece {
 	
 	private int level = 1;
 	private GamePlayer player;

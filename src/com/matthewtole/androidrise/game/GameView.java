@@ -13,6 +13,9 @@ import android.view.SurfaceView;
 import android.widget.Toast;
 
 import com.matthewtole.androidrise.game.enums.GamePlayer;
+import com.matthewtole.androidrise.game.pieces.Tile;
+import com.matthewtole.androidrise.game.pieces.Tower;
+import com.matthewtole.androidrise.game.pieces.Worker;
 import com.matthewtole.androidrise.lib.GameUpdate;
 import com.matthewtole.androidrise.lib.GridLocation;
 import com.matthewtole.androidrise.lib.RiseGame;
