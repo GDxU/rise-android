@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -61,6 +62,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private RectF sidebarRectangle;
 
+	private TurnIndicator turnIndicatorRed;
+	private TurnIndicator turnIndicatorBlue;
+
 	public GameView(Context context) {
 		super(context);
 		this.getHolder().addCallback(this);
@@ -74,7 +78,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 		this.tiles = new ArrayList<Tile>();
 		this.towers = new ArrayList<Tower>();
-		this.workers = new ArrayList<Worker>();
+		this.workers = new ArrayList<Worker>();		
 
 		this.loadLayout("the_pit");
 
@@ -85,7 +89,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	private void makePaints() {
 		this.paints.put("sidebarBackground", new Paint());
 		this.paints.get("sidebarBackground").setColor(
-				Color.parseColor("#333333"));
+				Color.parseColor("#222222"));
 		this.paints.get("sidebarBackground").setStyle(Style.FILL);
 		this.paints.get("sidebarBackground").setAntiAlias(true);
 
@@ -209,15 +213,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.offsetY = -1 * this.centerLocation.getScreenY()
 				+ this.surfaceHeight / 2;
 
-		this.sidebarRectangle = new RectF(10, 10, sidebarWidth - 10,
-				surfaceHeight - 10);
+		this.sidebarRectangle = new RectF(0, 0, sidebarWidth,
+				surfaceHeight);
+		
+	
+		this.turnIndicatorRed = new TurnIndicator(new Rect(10, 10, sidebarWidth - 10, 50), RiseGame.RED, 1);
+		this.turnIndicatorBlue = new TurnIndicator(new Rect(10, surfaceHeight - 50, sidebarWidth - 10, surfaceHeight - 10), RiseGame.BLUE, 0);
+
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
 
 		this.game = new RiseGame();
 		this.game.setup(this.layout);
-
+		
 		this.buildInitialLayout();
 
 		this.thread = new GameThread(this.getHolder(), this);
@@ -290,13 +299,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void drawInterface(Canvas canvas) {
+		
+		canvas.drawRect(this.sidebarRectangle, this.paints.get("sidebarBackground"));
+		
+		this.turnIndicatorBlue.draw(canvas);
+		this.turnIndicatorRed.draw(canvas);
+		
 		canvas.drawBitmap(this.spriteManager.getBitmap("target"),
 				this.surfaceWidth
 						- this.spriteManager.getBitmap("target").getWidth()
 						- 10, 10, null);
 
-		canvas.drawRoundRect(this.sidebarRectangle, 20.0f, 20.0f,
-				this.paints.get("sidebarBackground"));
+		
 	}
 
 	public void update() {
