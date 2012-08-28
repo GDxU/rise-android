@@ -10,6 +10,8 @@ public class GameUpdate {
 	public static final int TILE_ADDED = 200;
 	public static final int TOWER_REDUCED = 300;
 	public static final int TOWER_DEMOLISHED = 301;
+	public static final int TOWER_CREATED = 302;
+	public static final int TOWER_BUILT = 303;
 	public static final int SACRIFICE_REMOVE = 400;
 	public static final int SACRIFICE_ADD = 401;
 	

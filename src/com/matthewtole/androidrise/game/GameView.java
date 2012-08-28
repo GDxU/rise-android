@@ -261,7 +261,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		} catch (Exception ex) {
 			Log.e(TAG,
 					ex.getMessage() == null ? ex.toString() : ex.getMessage());
-			thread.setRunning(false);
+			//thread.setRunning(false);
 		}
 	}
 
@@ -318,6 +318,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		if (this.sleepCounter > 0) {
 			this.sleepCounter -= 1;
 			return;
+		}
+		
+		if (! game.updateQueue.isEmpty()) {
+			handleGameUpdate(game.updateQueue.get());
 		}
 
 		while (listLockout) {
@@ -379,15 +383,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		return true;
 	}
 
-	private void onGameClick(float x, float y) {
-
-		int touchX = (int) (x - this.offsetX);
-		int touchY = (int) (y - this.offsetY);
-
-		GridLocation loc = new ScreenLocation(touchX, touchY).toGridLocation();
-		GameUpdate update = this.game.doAction(loc.getGridX(), loc.getGridY(),
-				this.game.getCurrentPlayer());
-
+	private void handleGameUpdate(GameUpdate update) {
 		if (update.success) {
 			Worker w = findWorkerByLocation(update.location);
 			Worker w2 = findWorkerByLocation(update.locationSecondary);
@@ -451,6 +447,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				listLockout = false;
 			}
 				break;
+			case GameUpdate.TOWER_BUILT: {
+				Tower t = findTowerByLocation(update.location);
+				t.addLevel();
+			}
+				break;
+			case GameUpdate.TOWER_CREATED: {
+				Tower newTower = new Tower(spriteManager,
+						update.extraInt == RiseGame.BLUE ? GamePlayer.BLUE
+								: GamePlayer.RED);
+				newTower.setLocation(update.location);
+				while (listLockout) {
+				}
+				listLockout = true;
+				this.towers.add(newTower);
+				listLockout = false;
+			}
+				break;
 			case GameUpdate.SACRIFICE_ADD: {
 				if (w == null) {
 					Worker newWorker = new Worker(
@@ -485,6 +498,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			int duration = Toast.LENGTH_SHORT;
 			Toast toast = Toast.makeText(context, text, duration);
 			toast.show();
+		}
+	}
+
+	private void onGameClick(float x, float y) {
+		
+		if (this.sleepCounter > 0) { return; }
+
+		int touchX = (int) (x - this.offsetX);
+		int touchY = (int) (y - this.offsetY);
+
+		GridLocation loc = new ScreenLocation(touchX, touchY).toGridLocation();
+		Boolean validMove = this.game.doAction(loc.getGridX(), loc.getGridY(),
+				this.game.getCurrentPlayer());
+		if (validMove) {
+
+		} else {
+
 		}
 	}
 

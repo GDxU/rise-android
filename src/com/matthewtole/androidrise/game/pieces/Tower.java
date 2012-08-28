@@ -6,7 +6,7 @@ import com.matthewtole.androidrise.lib.Utils;
 
 public class Tower extends BitmapPiece {
 	
-	private int level = 1;
+	private int level = 0;
 	private GamePlayer player;
 
 	public Tower(SpriteManager sprites, GamePlayer player) {
@@ -17,6 +17,19 @@ public class Tower extends BitmapPiece {
 
 	public void removeLevel() {
 		level -= 1;
+		if (level == 0) {
+			this.setBitmap("error");
+			return;
+		}
 		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));
+	}
+
+	public void addLevel() {
+		level += 1;
+		if (level > 3) {
+			this.setBitmap("error");
+			return;
+		}
+		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));		
 	}
 }
