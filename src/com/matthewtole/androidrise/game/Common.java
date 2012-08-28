@@ -2,7 +2,7 @@ package com.matthewtole.androidrise.game;
 
 public class Common {
 	
-	public static final int FPS = 25;
+	public static final int FPS = 30;
 	
 	public static final int TILE_HEIGHT = 100;
 	public static final int TILE_WIDTH = 88;
