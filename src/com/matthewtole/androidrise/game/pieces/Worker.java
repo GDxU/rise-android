@@ -2,9 +2,9 @@ package com.matthewtole.androidrise.game.pieces;
 
 import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.game.enums.GamePlayer;
-import com.matthewtole.androidrise.lib.AnimationCallback;
+import com.matthewtole.androidrise.lib.PieceCallback;
 
-public class Worker extends CompositePiece implements AnimationCallback {
+public class Worker extends CompositePiece implements PieceCallback {
 
 	private GamePlayer player;
 

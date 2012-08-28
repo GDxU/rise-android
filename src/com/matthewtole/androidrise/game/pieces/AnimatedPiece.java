@@ -1,7 +1,7 @@
 package com.matthewtole.androidrise.game.pieces;
 
 import com.matthewtole.androidrise.game.SpriteManager;
-import com.matthewtole.androidrise.lib.AnimationCallback;
+import com.matthewtole.androidrise.lib.PieceCallback;
 
 public class AnimatedPiece extends BitmapPiece {
 
@@ -10,7 +10,7 @@ public class AnimatedPiece extends BitmapPiece {
 	private String folder;
 	private int count;
 	private int frame;
-	private AnimationCallback callback;
+	private PieceCallback callback;
 	private boolean paused;
 	private int speed;
 	private int speedCounter;
@@ -27,7 +27,7 @@ public class AnimatedPiece extends BitmapPiece {
 		this.setBitmap(this.makeBitmap());
 	}
 	
-	public void setCallback(AnimationCallback callback) {
+	public void setCallback(PieceCallback callback) {
 		this.callback = callback;
 	}
 
