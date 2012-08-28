@@ -27,6 +27,10 @@ public class CompositePiece extends Piece {
 		
 	}
 	
+	protected Piece getPiece(int i) {
+		return this.pieces.get(i);		
+	}
+	
 	protected void showPiece(int i) {
 		this.pieces.get(i).show();		
 	}

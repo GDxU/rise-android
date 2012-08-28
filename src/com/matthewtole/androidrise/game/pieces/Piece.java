@@ -19,7 +19,7 @@ public class Piece {
 
 	protected boolean isMoving = false;
 	private ScreenLocation target;
-	private int MOVE_DURATION = 250;
+	private int MOVE_DURATION = 400;
 	private SimpleQueue<ScreenLocation> movePoints;
 
 	protected boolean hidden = false;
