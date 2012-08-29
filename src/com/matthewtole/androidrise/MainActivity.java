@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.matthewtole.androidrise.game.GameView;
+
 public class MainActivity extends Activity {
     /** Called when the activity is first created. */
     @Override
@@ -14,7 +16,7 @@ public class MainActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(new MainView(this));
+        setContentView(new GameView(this));
     }
 }
 
