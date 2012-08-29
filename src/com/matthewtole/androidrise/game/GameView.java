@@ -78,7 +78,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 		this.tiles = new ArrayList<Tile>();
 		this.towers = new ArrayList<Tower>();
-		this.workers = new ArrayList<Worker>();		
+		this.workers = new ArrayList<Worker>();
 
 		this.loadLayout("the_pit");
 
@@ -208,17 +208,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			int height) {
 		this.surfaceWidth = width - sidebarWidth;
 		this.surfaceHeight = height;
-		this.offsetX = sidebarWidth + (-1 * this.centerLocation.getScreenX()
-				+ this.surfaceWidth / 2);
+		this.offsetX = sidebarWidth
+				+ (-1 * this.centerLocation.getScreenX() + this.surfaceWidth / 2);
 		this.offsetY = -1 * this.centerLocation.getScreenY()
 				+ this.surfaceHeight / 2;
 
-		this.sidebarRectangle = new RectF(0, 0, sidebarWidth,
-				surfaceHeight);
-		
-	
-		this.turnIndicatorRed = new TurnIndicator(new Rect(10, 10, sidebarWidth - 10, 50), RiseGame.RED, 1);
-		this.turnIndicatorBlue = new TurnIndicator(new Rect(10, surfaceHeight - 50, sidebarWidth - 10, surfaceHeight - 10), RiseGame.BLUE, 0);
+		this.sidebarRectangle = new RectF(0, 0, sidebarWidth, surfaceHeight);
+
+		this.turnIndicatorRed = new TurnIndicator(new Rect(10, 10,
+				sidebarWidth - 10, 50), RiseGame.RED, 1);
+		this.turnIndicatorBlue = new TurnIndicator(new Rect(10,
+				surfaceHeight - 50, sidebarWidth - 10, surfaceHeight - 10),
+				RiseGame.BLUE, 0);
 
 	}
 
@@ -226,7 +227,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 		this.game = new RiseGame();
 		this.game.setup(this.layout);
-		
+
 		this.buildInitialLayout();
 
 		this.thread = new GameThread(this.getHolder(), this);
@@ -261,7 +262,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		} catch (Exception ex) {
 			Log.e(TAG,
 					ex.getMessage() == null ? ex.toString() : ex.getMessage());
-			//thread.setRunning(false);
+			// thread.setRunning(false);
 		}
 	}
 
@@ -299,18 +300,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void drawInterface(Canvas canvas) {
-		
-		canvas.drawRect(this.sidebarRectangle, this.paints.get("sidebarBackground"));
-		
+
+		canvas.drawRect(this.sidebarRectangle,
+				this.paints.get("sidebarBackground"));
+
 		this.turnIndicatorBlue.draw(canvas);
 		this.turnIndicatorRed.draw(canvas);
-		
-		canvas.drawBitmap(this.spriteManager.getBitmap("interface/target"),
-				this.surfaceWidth
-						- this.spriteManager.getBitmap("interface/target").getWidth()
-						- 10, 10, null);
 
-		
+		canvas.drawBitmap(
+				this.spriteManager.getBitmap("interface/target"),
+				this.surfaceWidth
+						- this.spriteManager.getBitmap("interface/target")
+								.getWidth() - 10, 10, null);
+
 	}
 
 	public void update() {
@@ -319,8 +321,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			this.sleepCounter -= 1;
 			return;
 		}
-		
-		if (! game.updateQueue.isEmpty()) {
+
+		if (!game.updateQueue.isEmpty()) {
 			handleGameUpdate(game.updateQueue.get());
 		}
 
@@ -364,7 +366,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				if (event.getPointerCount() == 1) {
 					this.onGameClick(event.getX(), event.getY());
 				} else {
-					//Log.d(TAG, Utils.coordString(event.getX(), event.getY()));
+					// Log.d(TAG, Utils.coordString(event.getX(),
+					// event.getY()));
 				}
 			}
 			break;
@@ -384,6 +387,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void handleGameUpdate(GameUpdate update) {
+		
+		//Log.d(TAG, update.toString();
+
 		if (update.success) {
 			Worker w = findWorkerByLocation(update.location);
 			Worker w2 = findWorkerByLocation(update.locationSecondary);
@@ -491,6 +497,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				listLockout = false;
 			}
 				break;
+			case GameUpdate.MOVE_MADE: {
+				if (update.player == GamePlayer.BLUE) {
+					this.turnIndicatorBlue.moveMade();
+				} else {
+					this.turnIndicatorRed.moveMade();
+				}
+			}
+				break;
+			case GameUpdate.TURN_FINISHED: {
+				if (update.player == GamePlayer.BLUE) {
+					this.turnIndicatorBlue.myTurn();
+				} else {
+					this.turnIndicatorRed.myTurn();
+				}
+			}
+				break;
 			}
 		} else {
 			Context context = this.getContext();
@@ -502,8 +524,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void onGameClick(float x, float y) {
-		
-		if (this.sleepCounter > 0) { return; }
+
+		if (this.sleepCounter > 0) {
+			return;
+		}
 
 		int touchX = (int) (x - this.offsetX);
 		int touchY = (int) (y - this.offsetY);

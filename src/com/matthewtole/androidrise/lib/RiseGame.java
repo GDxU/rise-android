@@ -3,6 +3,8 @@ package com.matthewtole.androidrise.lib;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import com.matthewtole.androidrise.game.enums.GamePlayer;
+
 import android.util.Log;
 
 public class RiseGame {
@@ -496,8 +498,10 @@ public class RiseGame {
 					}
 					continue;
 				}
-			}
+			}			
 		}
+		
+		this.updateQueue.put(new GameUpdate(GameUpdate.MOVE_MADE, player == BLUE ? GamePlayer.BLUE : GamePlayer.RED));
 
 		this.turnState = RiseGame.TURN_STATE_NOTHING;
 		this.moveCounter -= 1;
@@ -546,6 +550,8 @@ public class RiseGame {
 				}
 			}
 		}
+		
+		this.updateQueue.put(new GameUpdate(GameUpdate.TURN_FINISHED, this.turn == BLUE ? GamePlayer.BLUE : GamePlayer.RED));
 
 		if (this.checkVictory()) {
 			return;
