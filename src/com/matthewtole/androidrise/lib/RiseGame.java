@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.matthewtole.androidrise.lib.enums.GamePlayer;
 import com.matthewtole.androidrise.lib.enums.TurnState;
+import com.matthewtole.androidrise.lib.enums.UpdateType;
 
 public class RiseGame {
 	
@@ -168,7 +169,7 @@ public class RiseGame {
 			this.availableWorkers.put(player,
 					this.availableWorkers.get(player) - 1);
 			this.moveMade(player);
-			this.updateQueue.put(new GameUpdate(GameUpdate.SACRIFICE_ADD,
+			this.updateQueue.put(new GameUpdate(UpdateType.SACRIFICE_ADD,
 					new GridLocation(x, y), new GridLocation(this.sacrifices[0]
 							.getX(), this.sacrifices[0].getY()),
 					new GridLocation(this.sacrifices[1].getX(),
@@ -187,7 +188,7 @@ public class RiseGame {
 					.put(RiseGame.otherPlayer(player), this.availableWorkers
 							.get(RiseGame.otherPlayer(player)) + 1);
 			this.moveMade(player);
-			this.updateQueue.put(new GameUpdate(GameUpdate.SACRIFICE_REMOVE,
+			this.updateQueue.put(new GameUpdate(UpdateType.SACRIFICE_REMOVE,
 					new GridLocation(x, y), new GridLocation(this.sacrifices[0]
 							.getX(), this.sacrifices[0].getY()),
 					new GridLocation(this.sacrifices[1].getX(),
@@ -203,7 +204,7 @@ public class RiseGame {
 			} else {
 				this.selectedTile = this.sacrifices[0];
 			}
-			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_UNSELECTED,
+			this.updateQueue.put(new GameUpdate(UpdateType.WORKER_UNSELECTED,
 					new GridLocation(x, y)));
 			return true;
 
@@ -221,7 +222,7 @@ public class RiseGame {
 			this.turnState = TurnState.NOTHING;
 			this.selectedTile.unselect();
 			this.selectedTile = null;
-			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_UNSELECTED,
+			this.updateQueue.put(new GameUpdate(UpdateType.WORKER_UNSELECTED,
 					new GridLocation(x, y)));
 			return true;
 		}
@@ -232,7 +233,7 @@ public class RiseGame {
 			this.sacrifices[0] = this.selectedTile;
 			this.sacrifices[1] = theTile;
 			this.selectedTile = null;
-			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_SELECTED,
+			this.updateQueue.put(new GameUpdate(UpdateType.WORKER_SELECTED,
 					new GridLocation(x, y)));
 			return true;
 		}
@@ -245,7 +246,7 @@ public class RiseGame {
 					this.selectedTile.getX(), this.selectedTile.getY());
 			this.selectedTile = null;
 			this.moveMade(player);
-			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_MOVED,
+			this.updateQueue.put(new GameUpdate(UpdateType.WORKER_MOVED,
 					tmpLocation, new GridLocation(x, y)));
 			return true;
 		}
@@ -269,7 +270,7 @@ public class RiseGame {
 					this.selectedTile = null;
 					this.moveMade(player);
 					this.updateQueue
-							.put(new GameUpdate(GameUpdate.WORKER_JUMP, tmp,
+							.put(new GameUpdate(UpdateType.WORKER_JUMP, tmp,
 									new GridLocation(x, y), new GridLocation(
 											neighbours[n].getX(), neighbours[n]
 													.getY())));
@@ -291,7 +292,7 @@ public class RiseGame {
 				theTile.setTile();
 				this.availableTiles -= 1;
 				this.moveMade(player);
-				this.updateQueue.put(new GameUpdate(GameUpdate.TILE_ADDED,
+				this.updateQueue.put(new GameUpdate(UpdateType.TILE_ADDED,
 						new GridLocation(x, y)));
 				return true;
 			} else {
@@ -306,7 +307,7 @@ public class RiseGame {
 				this.availableWorkers.put(player,
 						this.availableWorkers.get(player) - 1);
 				this.moveMade(player);
-				this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_ADDED,
+				this.updateQueue.put(new GameUpdate(UpdateType.WORKER_ADDED,
 						new GridLocation(x, y), player));
 				return false;
 			} else {
@@ -321,11 +322,11 @@ public class RiseGame {
 				this.moveMade(player);
 				if (theTile.isTower()) {
 					this.updateQueue.put(new GameUpdate(
-							GameUpdate.TOWER_REDUCED, new GridLocation(x, y)));
+							UpdateType.TOWER_REDUCED, new GridLocation(x, y)));
 					return true;
 				}
 				this.updateQueue.put(new GameUpdate(
-						GameUpdate.TOWER_DEMOLISHED, new GridLocation(x, y)));
+						UpdateType.TOWER_DEMOLISHED, new GridLocation(x, y)));
 				return true;
 			} else {
 				this.setMessage("Cannot demolish this tower");
@@ -337,7 +338,7 @@ public class RiseGame {
 			theTile.select();
 			this.turnState = TurnState.SELECTED;
 			this.selectedTile = theTile;
-			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_SELECTED,
+			this.updateQueue.put(new GameUpdate(UpdateType.WORKER_SELECTED,
 					new GridLocation(x, y)));
 			return true;
 		}
@@ -382,11 +383,11 @@ public class RiseGame {
 									.get(RiseGame.otherPlayer(player)) - 1);
 					if (this.towerCounts.get(RiseGame.otherPlayer(player)) == 0) {
 						this.updateQueue.put(new GameUpdate(
-								GameUpdate.TOWER_DEMOLISHED, new GridLocation(
+								UpdateType.TOWER_DEMOLISHED, new GridLocation(
 										x, y)));
 					} else {
 						this.updateQueue.put(new GameUpdate(
-								GameUpdate.TOWER_REDUCED,
+								UpdateType.TOWER_REDUCED,
 								new GridLocation(x, y)));
 					}
 				}
@@ -394,7 +395,7 @@ public class RiseGame {
 					if (this.tileSurrounded(thisTile, player)) {
 						thisTile.setTower(player, 0);
 						this.updateQueue.put(new GameUpdate(
-								GameUpdate.TOWER_CREATED,
+								UpdateType.TOWER_CREATED,
 								new GridLocation(x, y), player));
 					}
 				}
@@ -406,7 +407,7 @@ public class RiseGame {
 						this.towerCounts.put(player,
 								this.towerCounts.get(player) + 1);
 						this.updateQueue
-								.put(new GameUpdate(GameUpdate.TOWER_BUILT,
+								.put(new GameUpdate(UpdateType.TOWER_BUILT,
 										new GridLocation(x, y)));
 					}
 					continue;
@@ -414,7 +415,7 @@ public class RiseGame {
 			}
 		}
 
-		this.updateQueue.put(new GameUpdate(GameUpdate.MOVE_MADE, player));
+		this.updateQueue.put(new GameUpdate(UpdateType.MOVE_MADE, player));
 
 		this.turnState = TurnState.NOTHING;
 		this.moveCounter -= 1;
@@ -446,7 +447,7 @@ public class RiseGame {
 							this.towerCounts.get(RiseGame
 									.otherPlayer(this.turn)) - 1);
 					this.updateQueue.put(new GameUpdate(
-							GameUpdate.TOWER_REDUCED, new GridLocation(x, y)));
+							UpdateType.TOWER_REDUCED, new GridLocation(x, y)));
 				}
 				if (thisTile.isTile()) {
 					if (this.tileSurrounded(thisTile, turn)) {
@@ -460,7 +461,7 @@ public class RiseGame {
 						this.towerCounts.put(this.turn,
 								this.towerCounts.get(this.turn) + 1);
 						this.updateQueue
-								.put(new GameUpdate(GameUpdate.TOWER_BUILT,
+								.put(new GameUpdate(UpdateType.TOWER_BUILT,
 										new GridLocation(x, y)));
 					}
 					continue;
@@ -469,7 +470,7 @@ public class RiseGame {
 		}
 
 		this.updateQueue
-				.put(new GameUpdate(GameUpdate.TURN_FINISHED, this.turn));
+				.put(new GameUpdate(UpdateType.TURN_FINISHED, this.turn));
 
 		if (this.checkVictory()) {
 			return;

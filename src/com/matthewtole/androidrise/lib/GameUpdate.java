@@ -1,6 +1,7 @@
 package com.matthewtole.androidrise.lib;
 
 import com.matthewtole.androidrise.lib.enums.GamePlayer;
+import com.matthewtole.androidrise.lib.enums.UpdateType;
 
 public class GameUpdate {
 
@@ -21,7 +22,7 @@ public class GameUpdate {
 
 	public boolean success;
 	public String failureReason = "";
-	public int type;
+	public UpdateType type;
 	public GridLocation location;
 	public GridLocation locationSecondary;
 	public GridLocation locationTertiary;
@@ -29,37 +30,7 @@ public class GameUpdate {
 
 	@Override
 	public String toString() {
-		switch (type) {
-		case WORKER_SELECTED:
-			return "WORKER_SELECTED";
-		case WORKER_UNSELECTED:
-			return "WORKER_UNSELECTED";
-		case WORKER_MOVED:
-			return "WORKER_MOVED";
-		case WORKER_ADDED:
-			return "WORKER_ADDED";
-		case WORKER_JUMP:
-			return "WORKER_JUMP";
-		case TILE_ADDED:
-			return "TILE_ADDED";
-		case TOWER_REDUCED:
-			return "TOWER_REDUCED";
-		case TOWER_DEMOLISHED:
-			return "TOWER_DEMOLISHED";
-		case TOWER_CREATED:
-			return "TOWER_CREATED";
-		case TOWER_BUILT:
-			return "TOWER_BUILT";
-		case SACRIFICE_REMOVE:
-			return "SACRIFICE_REMOVE";
-		case SACRIFICE_ADD:
-			return "SACRIFICE_ADD";
-		case MOVE_MADE:
-			return "MOVE_MADE";
-		case TURN_FINISHED:
-			return "TURN_FINISHED";
-		}
-		return failureReason;
+		return type.name();
 	}
 
 	public GameUpdate(boolean success, String reason) {
@@ -67,13 +38,13 @@ public class GameUpdate {
 		this.failureReason = reason;
 	}
 
-	public GameUpdate(int type, GridLocation location) {
+	public GameUpdate(UpdateType type, GridLocation location) {
 		this.success = true;
 		this.type = type;
 		this.location = location;
 	}
 
-	public GameUpdate(int type, GridLocation location,
+	public GameUpdate(UpdateType type, GridLocation location,
 			GridLocation locationSecondary) {
 		this.success = true;
 		this.type = type;
@@ -81,7 +52,7 @@ public class GameUpdate {
 		this.locationSecondary = locationSecondary;
 	}
 
-	public GameUpdate(int type, GridLocation location,
+	public GameUpdate(UpdateType type, GridLocation location,
 			GridLocation locationSecondary, GridLocation locationTertiary) {
 		this.success = true;
 		this.type = type;
@@ -90,13 +61,13 @@ public class GameUpdate {
 		this.locationTertiary = locationTertiary;
 	}
 
-	public GameUpdate(int type, GamePlayer player) {
+	public GameUpdate(UpdateType type, GamePlayer player) {
 		this.success = true;
 		this.type = type;
 		this.player = player;
 	}
 
-	public GameUpdate(int type, GridLocation location, GamePlayer player) {
+	public GameUpdate(UpdateType type, GridLocation location, GamePlayer player) {
 		this.success = true;
 		this.type = type;
 		this.location = location;

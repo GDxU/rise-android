@@ -396,23 +396,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			Worker w3 = findWorkerByLocation(update.locationTertiary);
 
 			switch (update.type) {
-			case GameUpdate.WORKER_SELECTED:
+			case WORKER_SELECTED:
 				if (w != null) {
 					w.setSelected(true);
 				}
 				break;
-			case GameUpdate.WORKER_UNSELECTED:
+			case WORKER_UNSELECTED:
 				if (w != null) {
 					w.setSelected(false);
 				}
 				break;
-			case GameUpdate.WORKER_MOVED:
+			case WORKER_MOVED:
 				if (w != null) {
 					w.setLocation(update.locationSecondary, false);
 					w.setSelected(false);
 				}
 				break;
-			case GameUpdate.WORKER_ADDED: {
+			case WORKER_ADDED: {
 				Worker newWorker = new Worker(spriteManager, update.player);
 				newWorker.setLocation(update.location);
 				while (listLockout) {
@@ -422,7 +422,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				listLockout = false;
 			}
 				break;
-			case GameUpdate.WORKER_JUMP:
+			case WORKER_JUMP:
 				w.setLocation(update.locationSecondary, false);
 				w.setSelected(false);
 				while (listLockout) {
@@ -431,18 +431,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				this.workers.remove(w3);
 				listLockout = false;
 				break;
-			case GameUpdate.TILE_ADDED: {
+			case TILE_ADDED: {
 				Tile t = new Tile(spriteManager);
 				t.setLocation(update.location);
 				this.tiles.add(t);
 			}
 				break;
-			case GameUpdate.TOWER_REDUCED: {
+			case TOWER_REDUCED: {
 				Tower t = findTowerByLocation(update.location);
 				t.removeLevel();
 			}
 				break;
-			case GameUpdate.TOWER_DEMOLISHED: {
+			case TOWER_DEMOLISHED: {
 				Tower t = findTowerByLocation(update.location);
 				while (listLockout) {
 				}
@@ -451,12 +451,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				listLockout = false;
 			}
 				break;
-			case GameUpdate.TOWER_BUILT: {
+			case TOWER_BUILT: {
 				Tower t = findTowerByLocation(update.location);
 				t.addLevel();
 			}
 				break;
-			case GameUpdate.TOWER_CREATED: {
+			case TOWER_CREATED: {
 				Tower newTower = new Tower(spriteManager, update.player);
 				newTower.setLocation(update.location);
 				while (listLockout) {
@@ -466,7 +466,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				listLockout = false;
 			}
 				break;
-			case GameUpdate.SACRIFICE_ADD: {
+			case SACRIFICE_ADD: {
 				if (w == null) {
 					Worker newWorker = new Worker(
 							spriteManager,
@@ -483,7 +483,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 				break;
-			case GameUpdate.SACRIFICE_REMOVE: {
+			case SACRIFICE_REMOVE: {
 				while (listLockout) {
 				}
 				listLockout = true;
@@ -493,7 +493,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				listLockout = false;
 			}
 				break;
-			case GameUpdate.MOVE_MADE: {
+			case MOVE_MADE: {
 				if (update.player == GamePlayer.BLUE) {
 					this.turnIndicatorBlue.moveMade();
 				} else {
@@ -501,7 +501,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 				break;
-			case GameUpdate.TURN_FINISHED: {
+			case TURN_FINISHED: {
 				if (update.player == GamePlayer.BLUE) {
 					this.turnIndicatorBlue.myTurn();
 				} else {
