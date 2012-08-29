@@ -20,8 +20,6 @@ public class GameUpdate {
 	public static final int MOVE_MADE = 500;
 	public static final int TURN_FINISHED = 501;
 
-	public boolean success;
-	public String failureReason = "";
 	public UpdateType type;
 	public GridLocation location;
 	public GridLocation locationSecondary;
@@ -33,20 +31,13 @@ public class GameUpdate {
 		return type.name();
 	}
 
-	public GameUpdate(boolean success, String reason) {
-		this.success = success;
-		this.failureReason = reason;
-	}
-
 	public GameUpdate(UpdateType type, GridLocation location) {
-		this.success = true;
 		this.type = type;
 		this.location = location;
 	}
 
 	public GameUpdate(UpdateType type, GridLocation location,
 			GridLocation locationSecondary) {
-		this.success = true;
 		this.type = type;
 		this.location = location;
 		this.locationSecondary = locationSecondary;
@@ -54,7 +45,6 @@ public class GameUpdate {
 
 	public GameUpdate(UpdateType type, GridLocation location,
 			GridLocation locationSecondary, GridLocation locationTertiary) {
-		this.success = true;
 		this.type = type;
 		this.location = location;
 		this.locationSecondary = locationSecondary;
@@ -62,13 +52,11 @@ public class GameUpdate {
 	}
 
 	public GameUpdate(UpdateType type, GamePlayer player) {
-		this.success = true;
 		this.type = type;
 		this.player = player;
 	}
 
 	public GameUpdate(UpdateType type, GridLocation location, GamePlayer player) {
-		this.success = true;
 		this.type = type;
 		this.location = location;
 		this.player = player;

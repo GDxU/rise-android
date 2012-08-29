@@ -322,8 +322,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			return;
 		}
 
-		if (!game.updateQueue.isEmpty()) {
-			handleGameUpdate(game.updateQueue.get());
+		if (game.hasUpdate()) {
+			handleGameUpdate(game.getUpdate());
 		}
 
 		while (listLockout) {
@@ -388,134 +388,124 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private void handleGameUpdate(GameUpdate update) {
 
-		// Log.d(TAG, update.toString();
+		Worker w = findWorkerByLocation(update.location);
+		Worker w2 = findWorkerByLocation(update.locationSecondary);
+		Worker w3 = findWorkerByLocation(update.locationTertiary);
 
-		if (update.success) {
-			Worker w = findWorkerByLocation(update.location);
-			Worker w2 = findWorkerByLocation(update.locationSecondary);
-			Worker w3 = findWorkerByLocation(update.locationTertiary);
-
-			switch (update.type) {
-			case WORKER_SELECTED:
-				if (w != null) {
-					w.setSelected(true);
-				}
-				break;
-			case WORKER_UNSELECTED:
-				if (w != null) {
-					w.setSelected(false);
-				}
-				break;
-			case WORKER_MOVED:
-				if (w != null) {
-					w.setLocation(update.locationSecondary, false);
-					w.setSelected(false);
-				}
-				break;
-			case WORKER_ADDED: {
-				Worker newWorker = new Worker(spriteManager, update.player);
+		switch (update.type) {
+		case WORKER_SELECTED:
+			if (w != null) {
+				w.setSelected(true);
+			}
+			break;
+		case WORKER_UNSELECTED:
+			if (w != null) {
+				w.setSelected(false);
+			}
+			break;
+		case WORKER_MOVED:
+			if (w != null) {
+				w.setLocation(update.locationSecondary, false);
+				w.setSelected(false);
+			}
+			break;
+		case WORKER_ADDED: {
+			Worker newWorker = new Worker(spriteManager, update.player);
+			newWorker.setLocation(update.location);
+			while (listLockout) {
+			}
+			listLockout = true;
+			this.workers.add(newWorker);
+			listLockout = false;
+		}
+			break;
+		case WORKER_JUMP:
+			w.setLocation(update.locationSecondary, false);
+			w.setSelected(false);
+			while (listLockout) {
+			}
+			listLockout = true;
+			this.workers.remove(w3);
+			listLockout = false;
+			break;
+		case TILE_ADDED: {
+			Tile t = new Tile(spriteManager);
+			t.setLocation(update.location);
+			this.tiles.add(t);
+		}
+			break;
+		case TOWER_REDUCED: {
+			Tower t = findTowerByLocation(update.location);
+			t.removeLevel();
+		}
+			break;
+		case TOWER_DEMOLISHED: {
+			Tower t = findTowerByLocation(update.location);
+			while (listLockout) {
+			}
+			listLockout = true;
+			this.towers.remove(t);
+			listLockout = false;
+		}
+			break;
+		case TOWER_BUILT: {
+			Tower t = findTowerByLocation(update.location);
+			t.addLevel();
+		}
+			break;
+		case TOWER_CREATED: {
+			Tower newTower = new Tower(spriteManager, update.player);
+			newTower.setLocation(update.location);
+			while (listLockout) {
+			}
+			listLockout = true;
+			this.towers.add(newTower);
+			listLockout = false;
+		}
+			break;
+		case SACRIFICE_ADD: {
+			if (w == null) {
+				Worker newWorker = new Worker(
+						spriteManager,
+						(w2.getPlayer() == GamePlayer.BLUE) ? GamePlayer.BLUE
+								: GamePlayer.RED);
 				newWorker.setLocation(update.location);
 				while (listLockout) {
 				}
 				listLockout = true;
 				this.workers.add(newWorker);
-				listLockout = false;
-			}
-				break;
-			case WORKER_JUMP:
-				w.setLocation(update.locationSecondary, false);
-				w.setSelected(false);
-				while (listLockout) {
-				}
-				listLockout = true;
-				this.workers.remove(w3);
-				listLockout = false;
-				break;
-			case TILE_ADDED: {
-				Tile t = new Tile(spriteManager);
-				t.setLocation(update.location);
-				this.tiles.add(t);
-			}
-				break;
-			case TOWER_REDUCED: {
-				Tower t = findTowerByLocation(update.location);
-				t.removeLevel();
-			}
-				break;
-			case TOWER_DEMOLISHED: {
-				Tower t = findTowerByLocation(update.location);
-				while (listLockout) {
-				}
-				listLockout = true;
-				this.towers.remove(t);
-				listLockout = false;
-			}
-				break;
-			case TOWER_BUILT: {
-				Tower t = findTowerByLocation(update.location);
-				t.addLevel();
-			}
-				break;
-			case TOWER_CREATED: {
-				Tower newTower = new Tower(spriteManager, update.player);
-				newTower.setLocation(update.location);
-				while (listLockout) {
-				}
-				listLockout = true;
-				this.towers.add(newTower);
-				listLockout = false;
-			}
-				break;
-			case SACRIFICE_ADD: {
-				if (w == null) {
-					Worker newWorker = new Worker(
-							spriteManager,
-							(w2.getPlayer() == GamePlayer.BLUE) ? GamePlayer.BLUE
-									: GamePlayer.RED);
-					newWorker.setLocation(update.location);
-					while (listLockout) {
-					}
-					listLockout = true;
-					this.workers.add(newWorker);
-					this.workers.remove(w2);
-					this.workers.remove(w3);
-					listLockout = false;
-				}
-			}
-				break;
-			case SACRIFICE_REMOVE: {
-				while (listLockout) {
-				}
-				listLockout = true;
-				this.workers.remove(w);
 				this.workers.remove(w2);
 				this.workers.remove(w3);
 				listLockout = false;
 			}
-				break;
-			case MOVE_MADE: {
-				if (update.player == GamePlayer.BLUE) {
-					this.turnIndicatorBlue.moveMade();
-				} else {
-					this.turnIndicatorRed.moveMade();
-				}
+		}
+			break;
+		case SACRIFICE_REMOVE: {
+			while (listLockout) {
 			}
-				break;
-			case TURN_FINISHED: {
-				if (update.player == GamePlayer.BLUE) {
-					this.turnIndicatorBlue.myTurn();
-				} else {
-					this.turnIndicatorRed.myTurn();
-				}
+			listLockout = true;
+			this.workers.remove(w);
+			this.workers.remove(w2);
+			this.workers.remove(w3);
+			listLockout = false;
+		}
+			break;
+		case MOVE_MADE: {
+			if (update.player == GamePlayer.BLUE) {
+				this.turnIndicatorBlue.moveMade();
+			} else {
+				this.turnIndicatorRed.moveMade();
 			}
-				break;
+		}
+			break;
+		case TURN_FINISHED: {
+			if (update.player == GamePlayer.BLUE) {
+				this.turnIndicatorBlue.myTurn();
+			} else {
+				this.turnIndicatorRed.myTurn();
 			}
-		} else {
-			Context context = this.getContext();
-			CharSequence text = update.failureReason;
-			int duration = Toast.LENGTH_SHORT;
-			Toast toast = Toast.makeText(context, text, duration);
-			toast.show();
+		}
+			break;
 		}
 	}
 
@@ -534,7 +524,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		if (validMove) {
 
 		} else {
-
+			Context context = this.getContext();
+			CharSequence text = this.game.getMessage();
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
 		}
 	}
 
