@@ -4,19 +4,17 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Stack;
 
+import android.util.Log;
+
 import com.matthewtole.androidrise.lib.enums.GamePlayer;
 
 public class RiseGame {
+	
+	private static final String TAG = RiseGame.class.getSimpleName();
 
 	private static final int TURN_STATE_NOTHING = 1;
 	private static final int TURN_STATE_WORKER_SELECTED = 2;
 	private static final int TURN_STATE_SACRIFICING = 3;
-
-	private static final int VICTORY_ELIMINATION = 1;
-	private static final int VICTORY_TOWERS = 1;
-
-	private static final int GAME_STATE_PLAYING = 1;
-	private static final int GAME_STATE_DONE = 2;
 
 	private static final int TILE_COUNT = 60;
 	private static final int WORKER_COUNT = 30;
@@ -36,11 +34,8 @@ public class RiseGame {
 	private RiseTile[] sacrifices;
 
 	private ArrayList<RiseTile> towersProcessed;
-	private int gameState = 0;
-	private GamePlayer gameWinner = GamePlayer.UNKNOWN;
-	private int victoryType = 0;
 
-	public SimpleQueue<GameUpdate> updateQueue;
+	public SimpleQueue<GameUpdate> updateQueue;	
 
 	public RiseGame() {
 
@@ -487,21 +482,14 @@ public class RiseGame {
 	private boolean checkVictory() {
 
 		if (this.availableWorkers.get(RiseGame.otherPlayer(this.turn)) == WORKER_COUNT) {
-			this.gameWon(this.turn, RiseGame.VICTORY_ELIMINATION);
+			Log.e(TAG, "VICTORY NOT IMPLEMENTED!");
 			return true;
 		}
 		if (this.availableWorkers.get(this.turn) == WORKER_COUNT) {
-			this.gameWon(RiseGame.otherPlayer(this.turn),
-					RiseGame.VICTORY_ELIMINATION);
+			Log.e(TAG, "VICTORY NOT IMPLEMENTED!");
 			return true;
 		}
 		return false;
-	}
-
-	private void gameWon(GamePlayer player, int victoryType) {
-		this.gameState = RiseGame.GAME_STATE_DONE;
-		this.gameWinner = player;
-		this.victoryType = victoryType;
 	}
 
 	private boolean tileSurrounded(RiseTile tile, GamePlayer player) {
