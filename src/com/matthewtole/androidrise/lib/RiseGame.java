@@ -81,51 +81,6 @@ public class RiseGame {
 		this.buildLayout(layout);
 	}
 
-	private boolean hasPiece(int x, int y) {
-		if (!validLocation(x, y)) {
-			return false;
-		}
-		return this.getTile(x, y).isPiece();
-	}
-
-	private GamePlayer pieceColour(int x, int y) {
-		if (!validLocation(x, y)) {
-			return GamePlayer.UNKNOWN;
-		}
-		if (!hasPiece(x, y)) {
-			return GamePlayer.UNKNOWN;
-		}
-		return this.getTile(x, y).pieceColour();
-	}
-
-	private int towerHeight(int x, int y) {
-		if (!validLocation(x, y) || !hasPiece(x, y) || !hasTower(x, y)) {
-			return 0;
-		}
-		return this.getTile(x, y).towerHeight();
-	}
-
-	private GamePlayer towerColour(int x, int y) {
-		if (!validLocation(x, y) || !hasPiece(x, y) || !hasTower(x, y)) {
-			return GamePlayer.UNKNOWN;
-		}
-		return this.pieceColour(x, y);
-	}
-
-	private boolean hasTower(int x, int y) {
-		if (!validLocation(x, y) || !hasPiece(x, y)) {
-			return false;
-		}
-		return this.getTile(x, y).isTower();
-	}
-
-	private boolean hasTile(int x, int y) {
-		if (!validLocation(x, y)) {
-			return false;
-		}
-		return !this.getTile(x, y).isBlank();
-	}
-
 	public boolean doAction(int x, int y, GamePlayer player) {
 
 		if (this.turn != player) {
@@ -160,26 +115,6 @@ public class RiseGame {
 
 	public GamePlayer getCurrentPlayer() {
 		return this.turn;
-	}
-
-	private boolean isSelectedWorker(int x, int y) {
-		return this.getTile(x, y).isSelected();
-	}
-
-	private int getMovesLeft() {
-		return this.moveCounter;
-	}
-
-	private int getState() {
-		return this.gameState;
-	}
-
-	private GamePlayer getWinner() {
-		return this.gameWinner;
-	}
-
-	private int getVictoryType() {
-		return this.victoryType;
 	}
 
 	private void buildLayout(char[][] layout) {
@@ -376,7 +311,8 @@ public class RiseGame {
 		if (theTile.isTile() & this.availableWorkers.get(player) > 0) {
 			if (this.hasNeighbourWorker(x, y, player)) {
 				theTile.setWorker(player);
-				this.availableWorkers.put(player, this.availableWorkers.get(player) - 1);
+				this.availableWorkers.put(player,
+						this.availableWorkers.get(player) - 1);
 				this.moveMade(player);
 				this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_ADDED,
 						new GridLocation(x, y), player));
@@ -393,8 +329,7 @@ public class RiseGame {
 				this.moveMade(player);
 				if (theTile.isTower()) {
 					this.updateQueue.put(new GameUpdate(
-							GameUpdate.TOWER_REDUCED, new GridLocation(x, y),
-							theTile.towerHeight()));
+							GameUpdate.TOWER_REDUCED, new GridLocation(x, y)));
 					return true;
 				}
 				this.updateQueue.put(new GameUpdate(
@@ -449,8 +384,10 @@ public class RiseGame {
 						&& this.tileSurrounded(thisTile, player)) {
 					thisTile.demolishTower();
 					this.towersProcessed.add(thisTile);
-					
-					this.towerCounts.put(RiseGame.otherPlayer(player), this.towerCounts.get(RiseGame.otherPlayer(player)) - 1);				
+
+					this.towerCounts
+							.put(RiseGame.otherPlayer(player), this.towerCounts
+									.get(RiseGame.otherPlayer(player)) - 1);
 					if (this.towerCounts.get(RiseGame.otherPlayer(player)) == 0) {
 						this.updateQueue.put(new GameUpdate(
 								GameUpdate.TOWER_DEMOLISHED, new GridLocation(
@@ -474,7 +411,8 @@ public class RiseGame {
 					this.towersProcessed.add(thisTile);
 
 					if (thisTile.buildTower()) {
-						this.towerCounts.put(player, this.towerCounts.get(player) + 1);
+						this.towerCounts.put(player,
+								this.towerCounts.get(player) + 1);
 						this.updateQueue
 								.put(new GameUpdate(GameUpdate.TOWER_BUILT,
 										new GridLocation(x, y)));
@@ -512,7 +450,9 @@ public class RiseGame {
 						&& this.tileSurrounded(thisTile, turn)) {
 					thisTile.demolishTower();
 					this.towersProcessed.add(thisTile);
-					this.towerCounts.put(RiseGame.otherPlayer(this.turn), this.towerCounts.get(RiseGame.otherPlayer(this.turn)) - 1);
+					this.towerCounts.put(RiseGame.otherPlayer(this.turn),
+							this.towerCounts.get(RiseGame
+									.otherPlayer(this.turn)) - 1);
 					this.updateQueue.put(new GameUpdate(
 							GameUpdate.TOWER_REDUCED, new GridLocation(x, y)));
 				}
@@ -525,7 +465,8 @@ public class RiseGame {
 						&& this.tileSurrounded(thisTile, this.turn)) {
 					this.towersProcessed.add(thisTile);
 					if (thisTile.buildTower()) {
-						this.towerCounts.put(this.turn, this.towerCounts.get(this.turn) + 1);
+						this.towerCounts.put(this.turn,
+								this.towerCounts.get(this.turn) + 1);
 						this.updateQueue
 								.put(new GameUpdate(GameUpdate.TOWER_BUILT,
 										new GridLocation(x, y)));
@@ -535,7 +476,8 @@ public class RiseGame {
 			}
 		}
 
-		this.updateQueue.put(new GameUpdate(GameUpdate.TURN_FINISHED, this.turn));
+		this.updateQueue
+				.put(new GameUpdate(GameUpdate.TURN_FINISHED, this.turn));
 
 		if (this.checkVictory()) {
 			return;
