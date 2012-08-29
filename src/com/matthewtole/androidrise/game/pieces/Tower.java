@@ -4,32 +4,31 @@ import com.matthewtole.androidrise.game.SpriteManager;
 import com.matthewtole.androidrise.game.enums.GamePlayer;
 import com.matthewtole.androidrise.lib.Utils;
 
-public class Tower extends BitmapPiece {
+public class Tower extends CompositePiece {
 	
 	private int level = 0;
-	private GamePlayer player;
 
 	public Tower(SpriteManager sprites, GamePlayer player) {
 		super(sprites);
-		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));
-		this.player = player;
+		this.addPiece(new BitmapPiece(sprites, "error"));
+		this.hidePiece(0);
+		this.addPiece(new BitmapPiece(sprites, (Utils.playerString(player) + "_tower1")));
+		this.addPiece(new BitmapPiece(sprites, (Utils.playerString(player) + "_tower2")));
+		this.addPiece(new BitmapPiece(sprites, (Utils.playerString(player) + "_tower3")));
+		this.hidePiece(1);
+		this.hidePiece(2);
+		this.hidePiece(3);
 	}
 
 	public void removeLevel() {
+		this.hidePiece(this.level);
 		level -= 1;
-		if (level == 0) {
-			this.setBitmap("error");
-			return;
-		}
-		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));
+		if (this.level < 0) { this.level = 0; }
 	}
 
 	public void addLevel() {
 		level += 1;
-		if (level > 3) {
-			this.setBitmap("error");
-			return;
-		}
-		this.setBitmap(Utils.playerString(player) + "_tower" + String.valueOf(this.level));		
+		if (this.level > 3) { this.level = 3; }
+		this.showPiece(this.level);
 	}
 }
