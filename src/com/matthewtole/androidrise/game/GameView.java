@@ -206,10 +206,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		this.surfaceWidth = width;
+		this.surfaceWidth = width - sidebarWidth;
 		this.surfaceHeight = height;
-		this.offsetX = -1 * this.centerLocation.getScreenX()
-				+ this.surfaceWidth / 2;
+		this.offsetX = sidebarWidth + (-1 * this.centerLocation.getScreenX()
+				+ this.surfaceWidth / 2);
 		this.offsetY = -1 * this.centerLocation.getScreenY()
 				+ this.surfaceHeight / 2;
 
@@ -305,9 +305,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.turnIndicatorBlue.draw(canvas);
 		this.turnIndicatorRed.draw(canvas);
 		
-		canvas.drawBitmap(this.spriteManager.getBitmap("target"),
+		canvas.drawBitmap(this.spriteManager.getBitmap("interface/target"),
 				this.surfaceWidth
-						- this.spriteManager.getBitmap("target").getWidth()
+						- this.spriteManager.getBitmap("interface/target").getWidth()
 						- 10, 10, null);
 
 		
