@@ -12,7 +12,7 @@
 bin/*
 gen/
 
-!bin/*.apk
+#!bin/*.apk
 
 
 # Local configuration file (sdk path, etc)
