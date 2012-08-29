@@ -1,5 +1,7 @@
 package com.matthewtole.androidrise.lib;
 
+import com.matthewtole.androidrise.lib.enums.GamePlayer;
+
 public class RiseTile implements Cloneable {
 
 	private static final int STATE_BLANK = 1;
@@ -11,7 +13,7 @@ public class RiseTile implements Cloneable {
 
 	private int state = RiseTile.STATE_BLANK;
 	private int pieceType = 0;
-	private int pieceColour = -1;
+	private GamePlayer piecePlayer = GamePlayer.UNKNOWN;
 	private int towerHeight = 0;
 	private boolean selected = false;
 	private int x;
@@ -54,8 +56,8 @@ public class RiseTile implements Cloneable {
 		return this.state == RiseTile.STATE_PIECE;
 	}
 
-	public int pieceColour() {
-		return this.pieceColour;
+	public GamePlayer pieceColour() {
+		return this.piecePlayer;
 	}
 
 	public int towerHeight() {
@@ -70,8 +72,8 @@ public class RiseTile implements Cloneable {
 		return this.isPiece() && this.pieceType == RiseTile.PIECE_WORKER;
 	}
 
-	public boolean isWorker(int colour) {
-		return this.isWorker() && this.pieceColour() == colour;
+	public boolean isWorker(GamePlayer gamePlayer) {
+		return this.isWorker() && this.pieceColour() == gamePlayer;
 	}
 
 	public boolean isBlank() {
@@ -91,14 +93,14 @@ public class RiseTile implements Cloneable {
 		this.unselect();
 	}
 
-	public void setWorker(int player) {
+	public void setWorker(GamePlayer red) {
 		this.state = RiseTile.STATE_PIECE;
 		this.pieceType = RiseTile.PIECE_WORKER;
-		this.pieceColour = player;
+		this.piecePlayer = red;
 	}
 
-	public boolean isTower(int colour) {
-		return this.isTower() && this.pieceColour() == colour;
+	public boolean isTower(GamePlayer player) {
+		return this.isTower() && this.pieceColour() == player;
 	}
 
 	public boolean demolishTower() {
@@ -140,11 +142,11 @@ public class RiseTile implements Cloneable {
 		this.selected = false;
 	}
 
-	public void setTower(int colour, int height) {
+	public void setTower(GamePlayer player, int height) {
 		this.state = RiseTile.STATE_PIECE;
 		this.pieceType = RiseTile.PIECE_TOWER;
 		this.towerHeight = height;
-		this.pieceColour = colour;
+		this.piecePlayer = player;
 
 	}
 }

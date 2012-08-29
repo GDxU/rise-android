@@ -16,7 +16,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
-import com.matthewtole.androidrise.game.enums.GamePlayer;
 import com.matthewtole.androidrise.game.pieces.Tile;
 import com.matthewtole.androidrise.game.pieces.Tower;
 import com.matthewtole.androidrise.game.pieces.Worker;
@@ -25,6 +24,7 @@ import com.matthewtole.androidrise.lib.GridLocation;
 import com.matthewtole.androidrise.lib.RiseGame;
 import com.matthewtole.androidrise.lib.ScreenLocation;
 import com.matthewtole.androidrise.lib.Utils;
+import com.matthewtole.androidrise.lib.enums.GamePlayer;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -216,10 +216,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		this.sidebarRectangle = new RectF(0, 0, sidebarWidth, surfaceHeight);
 
 		this.turnIndicatorRed = new TurnIndicator(new Rect(10, 10,
-				sidebarWidth - 10, 50), RiseGame.RED, 1);
+				sidebarWidth - 10, 50), GamePlayer.RED, 1);
 		this.turnIndicatorBlue = new TurnIndicator(new Rect(10,
 				surfaceHeight - 50, sidebarWidth - 10, surfaceHeight - 10),
-				RiseGame.BLUE, 0);
+				GamePlayer.BLUE, 0);
 
 	}
 
@@ -387,8 +387,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void handleGameUpdate(GameUpdate update) {
-		
-		//Log.d(TAG, update.toString();
+
+		// Log.d(TAG, update.toString();
 
 		if (update.success) {
 			Worker w = findWorkerByLocation(update.location);
@@ -413,9 +413,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 				break;
 			case GameUpdate.WORKER_ADDED: {
-				Worker newWorker = new Worker(spriteManager,
-						update.extraInt == RiseGame.BLUE ? GamePlayer.BLUE
-								: GamePlayer.RED);
+				Worker newWorker = new Worker(spriteManager, update.player);
 				newWorker.setLocation(update.location);
 				while (listLockout) {
 				}
@@ -459,9 +457,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			}
 				break;
 			case GameUpdate.TOWER_CREATED: {
-				Tower newTower = new Tower(spriteManager,
-						update.extraInt == RiseGame.BLUE ? GamePlayer.BLUE
-								: GamePlayer.RED);
+				Tower newTower = new Tower(spriteManager, update.player);
 				newTower.setLocation(update.location);
 				while (listLockout) {
 				}

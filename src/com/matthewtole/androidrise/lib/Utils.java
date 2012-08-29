@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 import android.content.Context;
 
-import com.matthewtole.androidrise.game.enums.GamePlayer;
+import com.matthewtole.androidrise.lib.enums.GamePlayer;
 
 public class Utils {
 

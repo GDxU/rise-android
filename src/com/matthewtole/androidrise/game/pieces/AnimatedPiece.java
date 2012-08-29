@@ -1,7 +1,6 @@
 package com.matthewtole.androidrise.game.pieces;
 
 import com.matthewtole.androidrise.game.SpriteManager;
-import com.matthewtole.androidrise.lib.PieceCallback;
 
 public class AnimatedPiece extends BitmapPiece {
 

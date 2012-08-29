@@ -1,4 +1,4 @@
-package com.matthewtole.androidrise.lib;
+package com.matthewtole.androidrise.game.pieces;
 
 public interface PieceCallback {
 	

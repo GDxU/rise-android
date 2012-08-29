@@ -1,6 +1,6 @@
 package com.matthewtole.androidrise.lib;
 
-import com.matthewtole.androidrise.game.enums.GamePlayer;
+import com.matthewtole.androidrise.lib.enums.GamePlayer;
 
 public class GameUpdate {
 	
@@ -89,5 +89,10 @@ public class GameUpdate {
 		this.success = true;
 		this.type = type;
 		this.player = player;
+	}
+
+	public GameUpdate(int workerAdded, GridLocation gridLocation,
+			GamePlayer player2) {
+		// TODO Auto-generated constructor stub
 	}
 }

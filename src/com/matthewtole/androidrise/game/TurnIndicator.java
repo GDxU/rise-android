@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import com.matthewtole.androidrise.lib.RiseGame;
+import com.matthewtole.androidrise.lib.enums.GamePlayer;
 
 public class TurnIndicator {
 	
@@ -14,9 +14,9 @@ public class TurnIndicator {
 	private int turnCounter;
 	private Paint paintInactive;
 
-	public TurnIndicator(Rect rect, int colour, int count) {
+	public TurnIndicator(Rect rect, GamePlayer player, int count) {
 		this.paint = new Paint();
-		this.paint.setColor(colour == RiseGame.RED ? Color.parseColor("#E72D18") : Color.parseColor("#4B56CE"));
+		this.paint.setColor(player == GamePlayer.RED ? Color.parseColor("#E72D18") : Color.parseColor("#4B56CE"));
 		this.paint.setAntiAlias(true);
 		
 		this.paintInactive = new Paint(this.paint);
