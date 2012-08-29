@@ -7,14 +7,11 @@ import java.util.Stack;
 import android.util.Log;
 
 import com.matthewtole.androidrise.lib.enums.GamePlayer;
+import com.matthewtole.androidrise.lib.enums.TurnState;
 
 public class RiseGame {
 	
 	private static final String TAG = RiseGame.class.getSimpleName();
-
-	private static final int TURN_STATE_NOTHING = 1;
-	private static final int TURN_STATE_WORKER_SELECTED = 2;
-	private static final int TURN_STATE_SACRIFICING = 3;
 
 	private static final int TILE_COUNT = 60;
 	private static final int WORKER_COUNT = 30;
@@ -23,7 +20,7 @@ public class RiseGame {
 
 	private RiseTile[][] board;
 	private GamePlayer turn = GamePlayer.UNKNOWN;
-	private int turnState;
+	private TurnState turnState;
 	private int moveCounter;
 
 	private EnumMap<GamePlayer, Integer> availableWorkers;
@@ -65,7 +62,7 @@ public class RiseGame {
 		this.sacrifices = new RiseTile[2];
 		this.towersProcessed = new ArrayList<RiseTile>();
 		this.moveCounter = 1;
-		this.turnState = TURN_STATE_NOTHING;
+		this.turnState = TurnState.NOTHING;
 
 		for (int x = 0; x < TILE_COUNT; x += 1) {
 			for (int y = 0; y < TILE_COUNT; y += 1) {
@@ -89,13 +86,13 @@ public class RiseGame {
 		}
 
 		switch (this.turnState) {
-		case RiseGame.TURN_STATE_NOTHING:
+		case NOTHING:
 			return doActionNothing(x, y, player);
 
-		case RiseGame.TURN_STATE_WORKER_SELECTED:
+		case SELECTED:
 			return doActionSelected(x, y, player);
 
-		case TURN_STATE_SACRIFICING:
+		case SACRIFICING:
 			return doActionSacrifice(x, y, player);
 		}
 
@@ -199,7 +196,7 @@ public class RiseGame {
 		}
 		// UNSELECT THIS TILE
 		if (theTile == this.sacrifices[0] || theTile == this.sacrifices[1]) {
-			this.turnState = RiseGame.TURN_STATE_WORKER_SELECTED;
+			this.turnState = TurnState.SELECTED;
 			theTile.unselect();
 			if (theTile == this.sacrifices[0]) {
 				this.selectedTile = this.sacrifices[1];
@@ -221,7 +218,7 @@ public class RiseGame {
 
 		// UNSELECT WORKER
 		if (theTile == this.selectedTile) {
-			this.turnState = RiseGame.TURN_STATE_NOTHING;
+			this.turnState = TurnState.NOTHING;
 			this.selectedTile.unselect();
 			this.selectedTile = null;
 			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_UNSELECTED,
@@ -230,7 +227,7 @@ public class RiseGame {
 		}
 		// GO INTO SACRIFICE
 		if (theTile.isWorker(player)) {
-			this.turnState = RiseGame.TURN_STATE_SACRIFICING;
+			this.turnState = TurnState.SACRIFICING;
 			theTile.select();
 			this.sacrifices[0] = this.selectedTile;
 			this.sacrifices[1] = theTile;
@@ -338,7 +335,7 @@ public class RiseGame {
 		// SELECT WORKER
 		if (theTile.isWorker(player)) {
 			theTile.select();
-			this.turnState = RiseGame.TURN_STATE_WORKER_SELECTED;
+			this.turnState = TurnState.SELECTED;
 			this.selectedTile = theTile;
 			this.updateQueue.put(new GameUpdate(GameUpdate.WORKER_SELECTED,
 					new GridLocation(x, y)));
@@ -419,7 +416,7 @@ public class RiseGame {
 
 		this.updateQueue.put(new GameUpdate(GameUpdate.MOVE_MADE, player));
 
-		this.turnState = RiseGame.TURN_STATE_NOTHING;
+		this.turnState = TurnState.NOTHING;
 		this.moveCounter -= 1;
 		if (this.moveCounter <= 0) {
 			this.endTurn();
