@@ -542,6 +542,7 @@ public class RiseGame {
 		}
 		updateQueueLockout = true;
 		if (!this.updateQueue.isEmpty()) {
+			updateQueueLockout = false;
 			return this.updateQueue.get();
 		}
 		updateQueueLockout = false;
